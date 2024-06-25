@@ -1,0 +1,87 @@
+
+/* Color Palette */
+:root {
+  --pastel-blue-1: #DAF0F7;
+  --pastel-blue-2: #D5E3F0;
+  --pastel-blue-3: #C8D9F0;
+  --pastel-blue-4: #C1D5F0;
+  --pastel-blue-5: #B4CBF0;
+  --pastel-blue-6: #A8B5E0;
+
+  --text-color: #4a4a4a;
+  --background-color: var(--pastel-blue-1);
+
+}
+
+/* Basic resets */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, figcaption, blockquote, dl, dd {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial, sans-serif';
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+  background-image: url('www/background-2.png');
+  background-repeat: repeat;
+    background-size: cover; /* or 'contain' based on your needs */
+    background-attachment: fixed; /* This keeps the background fixed when scrolling */
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: #333333;
+  margin-bottom: 15px;
+}
+
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+/* Lists */
+ul, ol {
+  margin-bottom: 20px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+
+a.nav-link {
+  color: grey;
+}
+a.nav-link.active {
+  color: var(--text-color); !important;
+  font-weight: bold !important;
+
+}
+
+.card {
+  background-color: white !important;
+  border: 1px solid #cccccc;
+  border-radius: 0px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+.card-header {
+  background-color: white !important;
+  border-bottom: 1px solid #cccccc;
+}
+
+.main{
+  background-color: white !important;
+/*  background-image: url('www/bird.png');*/
+/*  background-repeat: no-repeat;*/
+/*  background-position: center;*/
+/*;*/
+}
+
+.form-group {
+  width: unset !important;
+}

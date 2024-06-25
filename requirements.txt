@@ -1,0 +1,10 @@
+shiny~=0.10.2
+numpy==2.0.0
+pandas==2.2.2
+pm4py==2.7.11.10
+seaborn
+htmltools~=0.5.2
+tqdm~=4.66.4
+matplotlib~=3.9.0
+shinyswatch~=0.6.1
+cachetools~=5.3.3

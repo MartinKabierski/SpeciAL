@@ -8,7 +8,7 @@ from shiny import App, render, ui, run_app, reactive
 from shiny.types import FileInfo
 from shinyswatch.theme import darkly, minty, quartz
 
-from process_completeness_estimation.estimation import species_estimator, species_retrieval
+from SpeciAL.estimation import species_estimator, species_retrieval
 
 app_ui = ui.page_fluid(
     shinyswatch.theme.minty(),

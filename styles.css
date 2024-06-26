@@ -13,7 +13,6 @@
 
 }
 
-/* Basic resets */
 body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, figcaption, blockquote, dl, dd {
   margin: 0;
   padding: 0;
@@ -28,8 +27,8 @@ body {
   padding: 20px;
   background-image: url('www/background-2.png');
   background-repeat: repeat;
-    background-size: cover; /* or 'contain' based on your needs */
-    background-attachment: fixed; /* This keeps the background fixed when scrolling */
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 /* Typography */
@@ -84,4 +83,62 @@ a.nav-link.active {
 
 .form-group {
   width: unset !important;
+}
+
+.hover-effect:hover {
+  color: green !important;
+  font-weight: bold !important;
+  -webkit-box-shadow: 0px 0px 17px -1px #000000 !important;
+  box-shadow: 0px 0px 17px -1px #000000 !important;
+}
+
+.form-group {
+  margin: 0 !important;
+}
+
+.form-check {
+  margin: 0 !important;
+}
+
+#tool1_download_pdf {
+  padding: 5px !important;
+}
+
+.container-fluid{
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.special-main-panel > div {
+  /*opacity: 90% !important;*/
+  border-radius: 10px !important;
+
+  -webkit-box-shadow: 0px 0px 9px 1px #000000 !important;
+  box-shadow: 0px 0px 9px 1px #000000 !important;
+}
+
+
+.navbar.navbar-default {
+  /*opacity: 90% !important;*/
+  border-radius: 10px !important;
+
+  -webkit-box-shadow: 0px 0px 9px 1px #000000;
+  box-shadow: 0px 0px 9px 1px #000000;
+}
+
+.overall-page {
+  padding-left: 4rem !important;
+  padding-right: 4rem !important;
+}
+
+
+.input-group > input.form-control{
+  -moz-border-radius-topright: 10px !important;
+  -moz-border-radius-bottomright: 10px !important;
+}
+
+.input-group > input.input-group-btn{
+  -moz-border-radius-topleft: 20px !important;
+  -moz-border-radius-bottomleft: 20px !important;
 }

@@ -4,6 +4,7 @@ from typing import Any, Callable, List, Optional, Literal
 
 from htmltools import Tag
 from shiny import ui, reactive
+from shinywidgets import output_widget
 
 from src import shared
 from src.utils.constants import HTMLBody
@@ -105,6 +106,8 @@ class BasicCardItem:
         self.title: Optional[HTMLBody] = title
         self.content: Optional[HTMLBody] = content
         self.footer: Optional[HTMLBody] = footer
+        self.style: str = "border-radius: 10px"
+        self.class_names: str = "hover-effect"
 
     def apply(self) -> HTMLBody:
         items: List[HTMLBody] = []
@@ -119,6 +122,8 @@ class BasicCardItem:
         return ui.card(
             items,
             full_screen=False,
+            style=self.style,
+            class_=self.class_names
         )
 
 
@@ -127,29 +132,33 @@ class BasicCardGroup:
                  cards: List[BasicCardItem],
                  orientation: Literal["row", "column"] = "row",
                  gap: str = "20px",
-                 stretch_full_length: bool = False) -> None:
+                 stretch_full_length: bool = False,
+                 overflow: bool = False) -> None:
         self.cards: List[BasicCardItem] = cards
         self.orientation: Literal["row", "column"] = orientation
         self.gap: str = gap
         self.stretch_full_length: bool = stretch_full_length
+        self.overflow: bool = overflow
         self.style: str = self._generate_style()
 
     def _generate_style(self) -> str:
-        base_style = f"display: flex; flex-wrap: wrap; gap: {self.gap};"
+        base_style = f"display: flex; gap: {self.gap};"
+        if self.orientation == "row":
+            base_style += "flex-wrap: nowrap;" if not self.overflow else "flex-wrap: wrap;"
         if self.stretch_full_length:
             base_style += " justify-content: space-between;"
         return base_style
 
-    def apply(self) -> HTMLBody:
+    def apply(self) -> ui.div:
+        style = self.style
         if self.orientation == "column":
-            return ui.div(
-                [card.apply() for card in self.cards],
-                style=f"display: flex; flex-direction: column; gap: {self.gap};"
-                      f"{' justify-content: space-between;' if self.stretch_full_length else ''}")
-        elif self.orientation == "row":
-            return ui.div(
-                [card.apply() for card in self.cards],
-                style=self.style)
+            style = f"display: flex; flex-direction: column; gap: {self.gap};" \
+                    f"{' justify-content: space-between;' if self.stretch_full_length else ''}"
+        return ui.div(
+            [card.apply() for card in self.cards],
+            style=style
+        )
+
 
 
 class BaseLogicView(AbstractComponent):
@@ -196,17 +205,17 @@ def basic_plot_layout(d0: bool, d1: bool, d2: bool, c0: bool, c1: bool, ln: bool
     """
     html_plot_list: List[HTMLBody] = []
     if d0:
-        html_plot_list.append(ui.output_plot("tool1_d0_plot"))
+        html_plot_list.append(output_widget("tool1_d0_plot"))
     if d1:
-        html_plot_list.append(ui.output_plot("tool1_d1_plot"))
+        html_plot_list.append(output_widget("tool1_d1_plot"))
     if d2:
-        html_plot_list.append(ui.output_plot("tool1_d2_plot"))
+        html_plot_list.append(output_widget("tool1_d2_plot"))
     if c0:
-        html_plot_list.append(ui.output_plot("tool1_c0_plot"))
+        html_plot_list.append(output_widget("tool1_c0_plot"))
     if c1:
-        html_plot_list.append(ui.output_plot("tool1_c1_plot"))
+        html_plot_list.append(output_widget("tool1_c1_plot"))
     if ln:
-        html_plot_list.append(ui.output_plot("tool1_l_n_plot"))
+        html_plot_list.append(output_widget("tool1_l_n_plot"))
 
     if use_grid:
         grid_layout: List[HTMLBody] = []

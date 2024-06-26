@@ -5,6 +5,7 @@ from shiny import ui
 
 from src.utils.base_tab import BaseTab
 from src.utils.constants import HTMLBody
+import faicons as fa
 
 
 def load_tabs() -> list[tuple[str, BaseTab]]:
@@ -36,5 +37,9 @@ def text_bold(text: str) -> HTMLBody:
     return ui.span(text, style="font-weight: bold;")
 
 
-def row(*elements: HTMLBody) -> HTMLBody:
-    return ui.div(elements, style="display: flex; gap: 20px;")
+def row(*elements: HTMLBody, gap: str = "5px") -> HTMLBody:
+    return ui.div(elements, style=f"display: flex; align-items: center; gap: {gap};")
+
+
+def text_icon(text_key: str, icon: str) -> HTMLBody:
+    return center(row(fa.icon_svg(icon), ui.output_text(text_key)))

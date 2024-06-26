@@ -3,6 +3,7 @@ import os
 from functools import wraps
 from typing import Optional, Callable, Any
 
+import faicons
 from shiny import render
 from shiny import ui
 
@@ -17,6 +18,7 @@ class BaseTab(abc.ABC):
         self.LABEL = label or self.FILE_NAME
         self.component: HTMLBody = None
         self.STYLE: str = "opacity: 94%;"
+        self.ICON: HTMLBody = faicons.icon_svg("briefcase")
 
     @abc.abstractmethod
     def init_component(self) -> HTMLBody:

@@ -5,9 +5,9 @@ import statistics
 
 from numpy.random import choice
 
-from src.estimation.metrics import estimate_species_richness_chao, get_singletons, get_doubletons, estimate_species_richness_chao_corrected, get_number_observed_species, entropy_exp, \
-    simpson_diversity, estimate_shannon_entropy_abundance, estimate_simpson_diversity_abundance, \
-    estimate_shannon_entropy_incidence, estimate_simpson_diversity_incidence
+from special.estimation.metrics import estimate_species_richness_chao, get_singletons, get_doubletons, estimate_species_richness_chao_corrected, get_number_observed_species, entropy_exp, \
+    simpson_diversity, estimate_simpson_diversity_abundance, \
+     estimate_simpson_diversity_incidence
 
 
 def get_bootstrap_probabilities_abundance(reference_sample, sample_size):
@@ -305,6 +305,7 @@ def get_bootstrap_stderr(reference_sample, sample_size, q=0, abundance=True, boo
 
         sample_estimate = None
         sample_estimate_q0 = estimate_species_richness_chao(sample, obs_species_count=sample_size)
+        raise NotImplementedError("ON ENTROPY ERROR")
         sample_estimate_q1 = estimate_shannon_entropy_abundance(sample, sample_size) if abundance else estimate_shannon_entropy_incidence(sample, sample_size)
         sample_estimate_q2 = estimate_simpson_diversity_abundance(sample, sample_size) if abundance else estimate_simpson_diversity_incidence(sample, sample_size)
         estimates_q0.append(sample_estimate_q0)

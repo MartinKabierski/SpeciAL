@@ -71,7 +71,7 @@ def plot_diversity_sample_vs_estimate(estimator: SpeciesEstimator, species_id: s
                          ticktext=[0, series_observations_ids[-1]])
         fig.update_yaxes(title_text="Diversity", row=1, col=1)
 
-    fig.update_layout(height=500, width=2700, title_text="Sample-based Diversity vs Asymptotic Diversity",
+    fig.update_layout(autosize=True, template="simple_white", title_text="Sample-based Diversity vs Asymptotic Diversity",
                       showlegend=True)
 
     return fig

@@ -35,13 +35,13 @@ class Tab1(BaseTab):
                                  selected="1-gram")
 
         sidebar.add_subsection("diversity_indices", "Diversity Indices")
-        sidebar.add_checkbox("tool1_d0", "Species Richness (D0)", True)
-        sidebar.add_checkbox("tool1_d1", "Exponential Shannon Entropy (D1)", False)
-        sidebar.add_checkbox("tool1_d2", "Simpson Diversity Index (D2)", False)
-
-        sidebar.add_subsection("completeness_coverage", "Completeness & Coverage")
-        sidebar.add_checkbox("tool1_c0", "Completeness (C0)", False)
-        sidebar.add_checkbox("tool1_c1", "Coverage (C1)", False)
+        sidebar.add_checkbox("tool1_abundance", "Abundance?", True)
+        # sidebar.add_checkbox("tool1_d1", "Exponential Shannon Entropy (D1)", False)
+        # sidebar.add_checkbox("tool1_d2", "Simpson Diversity Index (D2)", False)
+        #
+        # sidebar.add_subsection("completeness_coverage", "Completeness & Coverage")
+        # sidebar.add_checkbox("tool1_c0", "Completeness (C0)", False)
+        # sidebar.add_checkbox("tool1_c1", "Coverage (C1)", False)
 
         # sidebar.add_section("completeness_values", "Desired Completeness Values")
         # for i, value in enumerate(self.l_n):

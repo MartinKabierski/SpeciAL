@@ -24,8 +24,8 @@ loaded_tabs: List[tuple[str, BaseTab]] = load_tabs()
 
 def refresh_log_profile_cache(species_retrival: str, d0=True, d1=True, d2=True, c0=True, c1=True,
                               step_size=100) -> None:
-    if shared.LOG_PROFILE_CACHE.exists(species_retrival):
-        return
+    # if shared.LOG_PROFILE_CACHE.exists(species_retrival):
+    #     return
 
     estimator = species_estimator.SpeciesEstimator(d0=d0, d1=d1, d2=d2, c0=c0, c1=c1, step_size=step_size)
     estimator.register(species_retrival, RETRIVAL_MAP[species_retrival])
@@ -104,11 +104,11 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     @render.ui
     def tool1_plot_view() -> Tag:
         return basic_plot_layout(
-            input.tool1_d0(),
-            input.tool1_d1(),
-            input.tool1_d2(),
-            input.tool1_c0(),
-            input.tool1_c1(),
+            True,
+            True,
+            True,
+            True,
+            True,
             False,
             input.tool1_set_grid_mode()
         )
@@ -179,41 +179,58 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         if refresh_plots():
             print("Refreshing plots d0")
         key: str = input.tool1_select_retrival()
-        plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d0")
-        return plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key, "", True)
+        return  plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
 
     @render_plotly
     def tool1_d1_plot():
         if refresh_plots():
             print("Refreshing plots d1")
         key: str = input.tool1_select_retrival()
-        plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d1")
-        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key, "", True)
+        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
 
     @render_plotly
     def tool1_d2_plot():
         if refresh_plots():
             print("Refreshing plots d2")
         key: str = input.tool1_select_retrival()
-        plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d2")
-        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key, "", True)
+        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
 
     @render_plotly
     def tool1_c0_plot():
         if refresh_plots():
             print("Refreshing plots c0")
         key: str = input.tool1_select_retrival()
-        plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "c0")
-        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,["c0"], "", True)
+        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,["d0","d1","d2","c1","c0"], "", input.tool1_abundance())
 
     @render_plotly
     def tool1_c1_plot():
         if refresh_plots():
             print("Refreshing plots c1")
         key: str = input.tool1_select_retrival()
-        plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "c1")
-        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key, ["c0"], "", True)
+        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key, ["d0","d1","d2","c1","c0"], "", input.tool1_abundance())
 
+    def show_modal(key: str):
+        m = ui.modal(
+            f"This is a somewhat important message for {key}.",
+            title=f"Somewhat important message for {key}",
+            easy_close=True,
+            footer=None,
+        )
+        ui.modal_show(m)
+
+    # Mapping button IDs to their respective keys
+    button_keys = {
+        'show1': 'Button 1',
+        'show2': 'Button 2',
+        'show3': 'Button 3',
+    }
+
+    # Generic reactive effect to handle button clicks
+    for button_id, key in button_keys.items():
+        @reactive.effect
+        @reactive.event(getattr(input, button_id))
+        def handle_click(b_id=button_id, k=key):
+            show_modal(k)
 
 def basic_plot_function(
         plot_data: Dict[str, List[Union[int, float]]],
@@ -269,12 +286,4 @@ def basic_plot_function(
 
     return fig
 
-
-plot_expected_sampling_effort
-plot_completeness_profile
-plot_diversity_profile
-plot_diversity_series_all
-plot_diversity_series
-plot_diversity_sample_vs_estimate
-plot_rank_abundance
 app: App = App(app_ui, server)

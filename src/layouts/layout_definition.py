@@ -170,7 +170,8 @@ class BaseLogicView(AbstractComponent):
         self.content: HTMLBody = content
 
     def apply(self) -> HTMLBody:
-        return ui.panel_main(ui.div(ui.h4(self.title), ui.hr(style="padding:0;margin:0")), self._apply())
+        return ui.panel_main(self._apply())
+        #return ui.panel_main(ui.div(ui.h4(self.title), ui.hr(style="padding:0;margin:0")), self._apply())
 
     def _apply(self) -> HTMLBody:
         return ui.div(self.card_group.apply(), self.content)
@@ -188,21 +189,6 @@ class NoFileLayout(AbstractComponent):
 
 
 def basic_plot_layout(d0: bool, d1: bool, d2: bool, c0: bool, c1: bool, ln: bool, use_grid: bool = False) -> HTMLBody:
-    """
-    Create a basic plot layout with the specified plots.
-
-    Parameters:
-    d0 (bool): Include d0 plot.
-    d1 (bool): Include d1 plot.
-    d2 (bool): Include d2 plot.
-    c0 (bool): Include c0 plot.
-    c1 (bool): Include c1 plot.
-    ln (bool): Include ln plot.
-    use_grid (bool): Whether to display two plots per row.
-
-    Returns:
-    HTMLBody: HTML div containing the specified plots.
-    """
     html_plot_list: List[HTMLBody] = []
     if d0:
         html_plot_list.append(output_widget("tool1_d0_plot"))

@@ -5,7 +5,9 @@ import pandas as pd
 import pm4py
 from matplotlib import pyplot as plt
 
-from special.raripolation.rarefaction_extrapolation import rarefy_extrapolate_bootstrap_all
+import species_estimator
+import species_retrieval
+from rarefaction_extrapolation import rarefy_extrapolate_bootstrap_all
 
 WIDTH = 9
 

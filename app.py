@@ -9,6 +9,9 @@ from shiny.types import NavSetArg, FileInfo
 from shinywidgets import render_plotly
 
 from special.estimation import species_estimator
+from special.visualization.visualization import plot_expected_sampling_effort, plot_completeness_profile, \
+    plot_diversity_profile, plot_diversity_series_all, plot_diversity_series, plot_diversity_sample_vs_estimate, \
+    plot_rank_abundance
 from src import shared
 from src.layouts.layout_definition import NoFileLayout, basic_plot_layout
 from src.shared import app_dir
@@ -30,6 +33,7 @@ def refresh_log_profile_cache(species_retrival: str, d0=True, d1=True, d2=True, 
     estimator.apply(shared.EVENT_LOG_REF)
     df = estimator.to_dataFrame()
     shared.LOG_PROFILE_CACHE.add(df)
+    shared.ESTIMATOR_REFERENCE = estimator
 
 
 def _decorator(name: str, ui_body: HTMLBody) -> Any:
@@ -176,7 +180,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             print("Refreshing plots d0")
         key: str = input.tool1_select_retrival()
         plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d0")
-        return basic_plot_function(plot_data, "Species Richness Plot")
+        return plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key, "", True)
 
     @render_plotly
     def tool1_d1_plot():
@@ -184,7 +188,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             print("Refreshing plots d1")
         key: str = input.tool1_select_retrival()
         plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d1")
-        return basic_plot_function(plot_data, "Exponential Shannon Entropy Plot")
+        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key, "", True)
 
     @render_plotly
     def tool1_d2_plot():
@@ -192,7 +196,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             print("Refreshing plots d2")
         key: str = input.tool1_select_retrival()
         plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "d2")
-        return basic_plot_function(plot_data, "Simpson Diversity Index Plot")
+        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key, "", True)
 
     @render_plotly
     def tool1_c0_plot():
@@ -200,10 +204,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             print("Refreshing plots c0")
         key: str = input.tool1_select_retrival()
         plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "c0")
-        return basic_plot_function(plot_data, "Completeness Plot", (
-            ["abundance_sample"],
-            ["incidence_sample"]
-        ))
+        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,["c0"], "", True)
 
     @render_plotly
     def tool1_c1_plot():
@@ -211,10 +212,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             print("Refreshing plots c1")
         key: str = input.tool1_select_retrival()
         plot_data: Dict[str, List[Union[int, float]]] = shared.LOG_PROFILE_CACHE.filter_for_metric(key, "c1")
-        return basic_plot_function(plot_data, "Coverage Plot", (
-            ["abundance_sample"],
-            ["incidence_sample"]
-        ))
+        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key, ["c0"], "", True)
 
 
 def basic_plot_function(
@@ -272,4 +270,11 @@ def basic_plot_function(
     return fig
 
 
+plot_expected_sampling_effort
+plot_completeness_profile
+plot_diversity_profile
+plot_diversity_series_all
+plot_diversity_series
+plot_diversity_sample_vs_estimate
+plot_rank_abundance
 app: App = App(app_ui, server)

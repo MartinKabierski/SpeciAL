@@ -3,14 +3,14 @@ import statistics
 import time
 
 
-from special.bootstrap.bootstrap import generate_bootstrap_sequence_abundance, generate_bootstrap_sequence_incidence
-from special.raripolation.extrapolation import extrapolate_richness_abundance, extrapolate_shannon_entropy_abundance, \
+from src.bootstrap.bootstrap import generate_bootstrap_sequence_abundance, generate_bootstrap_sequence_incidence
+from src.raripolation.extrapolation import extrapolate_richness_abundance, extrapolate_shannon_entropy_abundance, \
     extrapolate_simpson_diversity_abundance, extrapolate_richness_incidence, extrapolate_shannon_entropy_incidence, \
     extrapolate_simpson_diversity_incidence
-from special.estimation.metrics import get_number_observed_species, entropy_exp, simpson_diversity, estimate_species_richness_chao
-from special.raripolation.rarefaction import rarefy_richness_abundance, rarefy_shannon_entropy_abundance, \
-    rarefy_richness_incidence, rarefy_shannon_entropy_incidence, rarefy_simpson_diversity_abundance, \
-    rarefy_simpson_diversity_incidence
+from src.estimation.metrics import get_number_observed_species, entropy_exp, simpson_diversity, estimate_species_richness_chao, estimate_shannon_entropy_abundance, \
+    estimate_shannon_entropy_incidence
+from rarefaction import rarefy_richness_abundance, rarefy_shannon_entropy_abundance, rarefy_simpson_diversity_abundance, \
+    rarefy_richness_incidence, rarefy_shannon_entropy_incidence, rarefy_simpson_diversity_incidence
 
 
 def rarefy_extrapolate_q0(est, abundance=True, data_points=30):
@@ -137,11 +137,16 @@ def rarefy_extrapolate_bootstrap_all(s, abundance_data=True, data_points=30, boo
 
         if abundance_data:
             q0_e, loc_e = extrapolate_richness_abundance(ref_sample, s.number_observations_abundance, estimate_species_richness_chao(ref_sample), data_points=data_points)
+            q1_e, _ = extrapolate_shannon_entropy_abundance(ref_sample, s.number_observations_abundance,
+                                                            math.exp(estimate_shannon_entropy_abundance(ref_sample, s.number_observations_abundance)), data_points= data_points)
             q2_e, _ = extrapolate_simpson_diversity_abundance(ref_sample, s.number_observations_abundance,data_points= data_points)
         else:
             q0_e, loc_e = extrapolate_richness_incidence(ref_sample, s.number_observations_incidence, estimate_species_richness_chao(ref_sample),
                                                          data_points=data_points)
-
+            q1_e, _ = extrapolate_shannon_entropy_incidence(ref_sample, s.number_observations_incidence,
+                                                            math.exp(estimate_shannon_entropy_incidence(ref_sample,
+                                                                                                        s.number_observations_incidence)),
+                                                            data_points=data_points)
             q2_e, _ = extrapolate_simpson_diversity_incidence(ref_sample, s.number_observations_incidence,
                                                               data_points=data_points)
 

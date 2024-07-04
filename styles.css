@@ -116,8 +116,8 @@ a.nav-link.active {
 
   -webkit-box-shadow: 0px 0px 9px 1px #000000 !important;
   box-shadow: 0px 0px 9px 1px #000000 !important;
+  background-color: #fde8c5;
 }
-
 
 .navbar.navbar-default {
   /*opacity: 90% !important;*/
@@ -141,4 +141,22 @@ a.nav-link.active {
 .input-group > input.input-group-btn{
   -moz-border-radius-topleft: 20px !important;
   -moz-border-radius-bottomleft: 20px !important;
+}
+
+#tool1_nav_set{
+  justify-content: center
+}
+  .plot_view_grid {
+    /*display: flex;*/
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.svg-container{
+  width: unset !important;
+  height: unset !important;
 }

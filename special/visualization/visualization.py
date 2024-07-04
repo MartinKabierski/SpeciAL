@@ -1,11 +1,53 @@
 from enum import Enum
-
 import matplotlib.pyplot as plt
 import numpy as np
 from plotly.subplots import make_subplots
-
 from special.estimation.species_estimator import SpeciesEstimator
 import plotly.graph_objects as go
+
+# Constants
+
+# Plot options and settings
+LAYOUT_TEMPLATE = "simple_white"
+FILL_COLOR = 'rgba(0,100,80,0.2)'
+LINE_COLOR = 'rgb(0,100,80)'
+MARKER_COLOR = 'grey'
+MARKER_SIZE = 10
+
+# Layouts
+RANK_ABUNDANCE_LAYOUT = go.Layout(
+    xaxis=dict(title='Species Rank'),
+    yaxis=dict(title='Occurrences'),
+    template=LAYOUT_TEMPLATE,
+    autosize=True,
+)
+
+DIVERSITY_LAYOUT = go.Layout(
+    autosize=True,
+    template=LAYOUT_TEMPLATE,
+    showlegend=True,
+)
+
+DIVERSITY_PROFILE_LAYOUT = go.Layout(
+    xaxis=dict(title='Order q'),
+    yaxis=dict(title='Diversity'),
+    template=LAYOUT_TEMPLATE,
+    autosize=True
+)
+
+COMPLETENESS_PROFILE_LAYOUT = go.Layout(
+    xaxis=dict(title='Sample Size'),
+    yaxis=dict(title='Value'),
+    template=LAYOUT_TEMPLATE,
+    autosize=True
+)
+
+EXPECTED_SAMPLING_EFFORT_LAYOUT = go.Layout(
+    xaxis=dict(title='Sample Size'),
+    yaxis=dict(title='Effort'),
+    template=LAYOUT_TEMPLATE,
+    autosize=True
+)
 
 
 def plot_rank_abundance(estimator: SpeciesEstimator, species_id: str, file_name: str, abundance: bool) -> go.Figure:
@@ -19,33 +61,17 @@ def plot_rank_abundance(estimator: SpeciesEstimator, species_id: str, file_name:
         y=reference_values_sorted,
         mode='lines',
         fill='tozeroy',
-        fillcolor='rgba(0,100,80,0.2)',
-        line=dict(color='rgb(0,100,80)')
+        fillcolor=FILL_COLOR,
+        line=dict(color=LINE_COLOR)
     )
 
-    layout = go.Layout(
-        xaxis=dict(title='Species Rank', tickvals=[1, no_species]),
-        yaxis=dict(title='Occurrences', tickvals=[0, max(reference_values_sorted)]),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
-    )
-
-    fig = go.Figure(data=[trace1], layout=layout)
+    fig = go.Figure(data=[trace1], layout=RANK_ABUNDANCE_LAYOUT)
 
     return fig
 
 
-def plot_diversity_sample_vs_estimate(estimator: SpeciesEstimator, species_id: str, metrics: [str], file_name: str,
+def plot_diversity_sample_vs_estimate(estimator: SpeciesEstimator, species_id: str, metrics: list[str], file_name: str,
                                       abundance: bool) -> go.Figure:
-    """
-    Plots the obtained time series of sample-based diversity vs asymptotic diversity
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param metrics: List of metrics to plot
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     fig = make_subplots(rows=1, cols=3, shared_yaxes=True, subplot_titles=("D0", "D1", "D2"))
 
     for i, (metric, title) in enumerate(zip(metrics, ("D0", "D1", "D2")), start=1):
@@ -59,11 +85,9 @@ def plot_diversity_sample_vs_estimate(estimator: SpeciesEstimator, species_id: s
             estimator.metrics[species_id]["incidence_no_observations"]
 
         no_data_points = len(series_sample)
-        series_ticks = estimator.metrics[species_id]["abundance_no_observations"] if abundance else \
-            estimator.metrics[species_id]["incidence_no_observations"]
 
-        fig.add_trace(go.Scatter(x=list(range(no_data_points)), y=series_sample, mode='lines', name='observed'),
-                      row=1, col=i)
+        fig.add_trace(go.Scatter(x=list(range(no_data_points)), y=series_sample, mode='lines', name='observed'), row=1,
+                      col=i)
         fig.add_trace(go.Scatter(x=list(range(no_data_points)), y=series_estimate, mode='lines', name='estimated'),
                       row=1, col=i)
 
@@ -71,23 +95,13 @@ def plot_diversity_sample_vs_estimate(estimator: SpeciesEstimator, species_id: s
                          ticktext=[0, series_observations_ids[-1]])
         fig.update_yaxes(title_text="Diversity", row=1, col=1)
 
-    fig.update_layout(autosize=True, template="simple_white", title_text="Sample-based Diversity vs Asymptotic Diversity",
-                      showlegend=True)
+    fig.update_layout(DIVERSITY_LAYOUT)
 
     return fig
 
 
 def plot_diversity_series(estimator: SpeciesEstimator, species_id: str, metric: str, file_name: str,
                           abundance: bool) -> go.Figure:
-    """
-    Plots the time series of the specified sample-based diversity metric, adding the asymptotic diversity as an indicator
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param metric: Metric to plot
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     key_sample = "abundance_sample_" + metric if abundance else "incidence_sample_" + metric
     key_estimate = "abundance_estimate_" + metric if abundance else "incidence_estimate_" + metric
 
@@ -98,8 +112,6 @@ def plot_diversity_series(estimator: SpeciesEstimator, species_id: str, metric: 
         estimator.metrics[species_id]["incidence_no_observations"]
 
     no_data_points = len(series_sample)
-    series_ticks = estimator.metrics[species_id]["abundance_no_observations"] if abundance else \
-        estimator.metrics[species_id]["incidence_no_observations"]
 
     trace_sample = go.Scatter(
         x=list(range(no_data_points)),
@@ -113,15 +125,14 @@ def plot_diversity_series(estimator: SpeciesEstimator, species_id: str, metric: 
         y=[series_estimate[-1]],
         mode='markers',
         name=f'{metric} estimated',
-        marker=dict(color='grey', size=10)
+        marker=dict(color=MARKER_COLOR, size=MARKER_SIZE)
     )
 
     layout = go.Layout(
         title=metric,
         xaxis=dict(title='Sample Size', tickvals=[0, no_data_points - 1], ticktext=[0, series_observations_ids[-1]]),
         yaxis=dict(title='Diversity'),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
+        template=LAYOUT_TEMPLATE,
     )
 
     fig = go.Figure(data=[trace_sample, trace_estimate], layout=layout)
@@ -129,17 +140,8 @@ def plot_diversity_series(estimator: SpeciesEstimator, species_id: str, metric: 
     return fig
 
 
-def plot_diversity_series_all(estimator: SpeciesEstimator, species_id: str, metrics: [str], file_name: str,
+def plot_diversity_series_all(estimator: SpeciesEstimator, species_id: str, metrics: list[str], file_name: str,
                               abundance: bool) -> go.Figure:
-    """
-    Plots all sample-based diversity metrics with their asymptotic diversity
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param metrics: List of metrics to plot
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     traces = []
 
     for metric, title in zip(metrics, ("D0", "D1", "D2")):
@@ -153,8 +155,6 @@ def plot_diversity_series_all(estimator: SpeciesEstimator, species_id: str, metr
             estimator.metrics[species_id]["incidence_no_observations"]
 
         no_data_points = len(series_sample)
-        series_ticks = estimator.metrics[species_id]["abundance_no_observations"] if abundance else \
-            estimator.metrics[species_id]["incidence_no_observations"]
 
         trace_sample = go.Scatter(
             x=list(range(no_data_points)),
@@ -168,17 +168,15 @@ def plot_diversity_series_all(estimator: SpeciesEstimator, species_id: str, metr
             y=[series_estimate[-1]],
             mode='markers',
             name=f'{metric} estimated',
-            marker=dict(color='grey', size=10)
+            marker=dict(color=MARKER_COLOR, size=MARKER_SIZE)
         )
 
         traces.extend([trace_sample, trace_estimate])
 
     layout = go.Layout(
-        title="Sample-based Diversity Metrics",
         xaxis=dict(title='Sample Size', tickvals=[0, no_data_points - 1], ticktext=[0, series_observations_ids[-1]]),
         yaxis=dict(title='Diversity'),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
+        template=LAYOUT_TEMPLATE,
     )
 
     fig = go.Figure(data=traces, layout=layout)
@@ -187,14 +185,6 @@ def plot_diversity_series_all(estimator: SpeciesEstimator, species_id: str, metr
 
 
 def plot_diversity_profile(estimator: SpeciesEstimator, species_id: str, file_name: str, abundance: bool) -> go.Figure:
-    """
-    Plots the asymptotic diversity profile
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     key = "abundance_estimate_" if abundance else "incidence_estimate_"
 
     profile = [estimator.metrics[species_id][key + "d0"][-1],
@@ -205,32 +195,15 @@ def plot_diversity_profile(estimator: SpeciesEstimator, species_id: str, file_na
         x=["q=0", "q=1", "q=2"],
         y=profile,
         mode='lines+markers',
-        name='Diversity Profile'
+        name='Diversity Profile',
     )
 
-    layout = go.Layout(
-        title="Asymptotic Diversity Profile",
-        xaxis=dict(title='Order q'),
-        yaxis=dict(title='Diversity'),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
-    )
-
-    fig = go.Figure(data=[trace], layout=layout)
-
+    fig = go.Figure(data=[trace], layout=DIVERSITY_PROFILE_LAYOUT)
     return fig
 
 
 def plot_completeness_profile(estimator: SpeciesEstimator, species_id: str, file_name: str,
                               abundance: bool) -> go.Figure:
-    """
-    Plots the time series for both completeness and coverage
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     key_completeness = "abundance_c0" if abundance else "incidence_c0"
     key_coverage = "abundance_c1" if abundance else "incidence_c1"
 
@@ -256,30 +229,13 @@ def plot_completeness_profile(estimator: SpeciesEstimator, species_id: str, file
         name='Coverage'
     )
 
-    layout = go.Layout(
-        title="Completeness Profile",
-        xaxis=dict(title='Sample Size', tickvals=[0, no_data_points - 1], ticktext=[0, series_observations_ids[-1]]),
-        yaxis=dict(title='Value'),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
-        legend=dict(x=0.1, y=1.1)
-    )
-
-    fig = go.Figure(data=[trace_completeness, trace_coverage], layout=layout)
+    fig = go.Figure(data=[trace_completeness, trace_coverage], layout=COMPLETENESS_PROFILE_LAYOUT)
 
     return fig
 
 
 def plot_expected_sampling_effort(estimator: SpeciesEstimator, species_id: str, file_name: str,
                                   abundance: bool) -> go.Figure:
-    """
-    Plots the time series for expected sampling efforts
-    :param estimator: SpeciesEstimator object
-    :param species_id: Identifier for the species
-    :param file_name: Output file name for the plot
-    :param abundance: Boolean indicating if abundance data should be used
-    :return: Plotly Figure object
-    """
     key = "abundance_l_" if abundance else "incidence_l_"
     traces = []
 
@@ -299,15 +255,6 @@ def plot_expected_sampling_effort(estimator: SpeciesEstimator, species_id: str, 
         )
         traces.append(trace)
 
-    layout = go.Layout(
-        title="Expected Sampling Effort",
-        xaxis=dict(title='Sample Size', tickvals=[0, no_data_points - 1], ticktext=[0, series_observations_ids[-1]]),
-        yaxis=dict(title='Effort'),
-        template="simple_white",
-        margin=dict(l=50, r=50, b=50, t=50),
-        legend=dict(x=0.1, y=1.1)
-    )
-
-    fig = go.Figure(data=traces, layout=layout)
+    fig = go.Figure(data=traces, layout=EXPECTED_SAMPLING_EFFORT_LAYOUT)
 
     return fig

@@ -22,7 +22,9 @@ class StorageManager:
 
     def add(self, new_data: pd.DataFrame) -> None:
         """Add a new row to the DataFrame."""
+        # remove rows where the species is the same
         self._dataframe = pd.concat([self._dataframe, new_data])
+        self._dataframe.drop_duplicates()
 
     def set_dataframe(self, dataframe: pd.DataFrame) -> None:
         """Set the DataFrame."""

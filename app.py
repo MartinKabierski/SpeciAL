@@ -1,11 +1,12 @@
-from typing import List, Any, Dict, Union, Tuple, Optional
+from typing import List, Any, Dict, Union, Tuple, Optional, Literal, Callable
 
 import pandas as pd
 import plotly.graph_objects as go
 import pm4py
 from htmltools import Tag
-from shiny import App, ui, render, Inputs, Outputs, Session, reactive
+from shiny import App, ui, render, Inputs, Outputs, Session, reactive, run_app
 from shiny.types import NavSetArg, FileInfo
+from shiny.ui._navs import NavSetCard
 from shinywidgets import render_plotly
 
 from special.estimation import species_estimator
@@ -16,18 +17,18 @@ from src import shared
 from src.layouts.layout_definition import NoFileLayout, basic_plot_layout
 from src.shared import app_dir
 from src.utils.base_tab import BaseTab
-from src.utils.constants import HTMLBody, RETRIVAL_MAP
+from src.utils.constants import HTMLBody, RETRIVAL_MAP, INFO_BUTTON_TEXT
 from src.utils.functions import load_tabs
 
 loaded_tabs: List[tuple[str, BaseTab]] = load_tabs()
 
 
-def refresh_log_profile_cache(species_retrival: str, d0=True, d1=True, d2=True, c0=True, c1=True,
-                              step_size=100) -> None:
-    # if shared.LOG_PROFILE_CACHE.exists(species_retrival):
-    #     return
+def refresh_log_profile_cache(species_retrival: str) -> None:
+    if shared.LOG_PROFILE_CACHE.exists(species_retrival):
+        return
 
-    estimator = species_estimator.SpeciesEstimator(d0=d0, d1=d1, d2=d2, c0=c0, c1=c1, step_size=step_size)
+    step_size = int(len(shared.EVENT_LOG_REF) / 200)
+    estimator = species_estimator.SpeciesEstimator(d0=True, d1=True, d2=True, c0=True, c1=True, step_size=step_size)
     estimator.register(species_retrival, RETRIVAL_MAP[species_retrival])
 
     estimator.apply(shared.EVENT_LOG_REF)
@@ -70,8 +71,15 @@ def create_app_ui_navbar(nfl: HTMLBody = None) -> Tag:
         *generate_nav_controls(loaded_tabs, nfl=nfl),
     )
 
-
 app_ui: Tag = ui.page_fluid(
+    ui.head_content(
+        ui.tags.link(
+            rel="stylesheet",
+            href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css",
+            integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu",
+            crossorigin="anonymous"
+        )
+    ),
     ui.output_ui("basic_layout"),
     ui.include_css(app_dir / "styles.css", method="link_files"),
     class_="overall-page"
@@ -87,6 +95,9 @@ def get_array_from_key(
 def server(input: Inputs, output: Outputs, session: Session) -> None:
     file_uploaded = reactive.Value(False)
     refresh_plots = reactive.Value(False)
+    current_retrival_function = reactive.Value[
+        Literal["1-gram", "2-gram", "3-gram", "4-gram", "5-gram", "trace_variants"]
+    ]("1-gram")
 
     # ############################
     # RENDER UI
@@ -103,15 +114,14 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     @output
     @render.ui
     def tool1_plot_view() -> Tag:
-        return basic_plot_layout(
-            True,
-            True,
-            True,
-            True,
-            True,
-            False,
-            input.tool1_set_grid_mode()
-        )
+        layout: HTMLBody = basic_plot_layout(current_retrival_function.get())
+        return layout
+
+    @reactive.Effect
+    def update_tab():
+        print("Updating tab", input.tool1_nav_set())
+        refresh_log_profile_cache(input.tool1_nav_set())
+        current_retrival_function.set(input.tool1_nav_set())
 
     # ############################
     # EVENT HANDLERS
@@ -134,25 +144,6 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
             shared.FILE_SELECTED = False
             file_uploaded.set(False)
 
-    @reactive.Effect
-    @reactive.event(input.tool1_select_retrival)
-    def tool1_select_retrival() -> None:
-        select_retrival_value: str = input.tool1_select_retrival()
-        print(f"Select retrival: {select_retrival_value}")
-        refresh_log_profile_cache(select_retrival_value)
-
-    @render.download(filename="report.pdf")
-    def tool1_download_pdf():
-        plot_layout: Tag = basic_plot_layout(
-            True, True, True, True, True, True, True
-        )
-
-        # html_str: str = plot_layout.get_html_string()
-        # print(html_str)
-        # pdf: bytes = convert_html_to_pdf(html_str)
-        # print(pdf)
-        # yield pdf
-
     # ############################
     # RENDER TEXT
     # ############################
@@ -173,117 +164,82 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     # ############################
     # RENDER PLOTS
     # ############################
+    @render_plotly
+    def tool1_plot_1():
+        key: str = current_retrival_function.get()
+        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key,
+                                      "", True)
 
     @render_plotly
-    def tool1_d0_plot():
-        if refresh_plots():
-            print("Refreshing plots d0")
-        key: str = input.tool1_select_retrival()
-        return  plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
+    def tool1_plot_2():
+        key: str = current_retrival_function.get()
+        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key,
+                                      "", False)
 
     @render_plotly
-    def tool1_d1_plot():
-        if refresh_plots():
-            print("Refreshing plots d1")
-        key: str = input.tool1_select_retrival()
-        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
+    def tool1_plot_3():
+        key: str = current_retrival_function.get()
+        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key,
+                                                 ["d0", "d1", "d2", "c1", "c0"], "",
+                                                 True)
 
     @render_plotly
-    def tool1_d2_plot():
-        if refresh_plots():
-            print("Refreshing plots d2")
-        key: str = input.tool1_select_retrival()
-        return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key, "", input.tool1_abundance())
+    def tool1_plot_4():
+        key: str = current_retrival_function.get()
+        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key,
+                                                 ["d0", "d1", "d2", "c1", "c0"], "",
+                                                 False)
 
     @render_plotly
-    def tool1_c0_plot():
-        if refresh_plots():
-            print("Refreshing plots c0")
-        key: str = input.tool1_select_retrival()
-        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,["d0","d1","d2","c1","c0"], "", input.tool1_abundance())
+    def tool1_plot_5():
+        key: str = current_retrival_function.get()
+        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key,
+                                         "", True)
 
     @render_plotly
-    def tool1_c1_plot():
-        if refresh_plots():
-            print("Refreshing plots c1")
-        key: str = input.tool1_select_retrival()
-        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key, ["d0","d1","d2","c1","c0"], "", input.tool1_abundance())
+    def tool1_plot_6():
+        key: str = current_retrival_function.get()
+        return plot_completeness_profile(shared.ESTIMATOR_REFERENCE, key,
+                                         "", False)
 
-    def show_modal(key: str):
+    @render_plotly
+    def tool1_plot_7():
+        key: str = current_retrival_function.get()
+        return plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key,
+                                             "", True)
+
+    @render_plotly
+    def tool1_plot_8():
+        key: str = current_retrival_function.get()
+        return plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key,
+
+                                             "", False)
+
+    def show_modal(content: HTMLBody):
         m = ui.modal(
-            f"This is a somewhat important message for {key}.",
-            title=f"Somewhat important message for {key}",
+            ui.hr(style="margin: 0; padding:0;"),
+            ui.div(
+                content,
+                ui.p("", style="min-height: 150px;"),
+                ui.img(src="bird.png", alt="Placeholder image",
+                       style="position: absolute; bottom: 0; left: 0; opacity: 0.5; width: 100px;"),
+
+                ui.img(src="glasses.png", alt="Placeholder image",
+                       style="position: absolute; bottom: 0; right: 0; opacity: 0.5; width: 150px;"),
+                style="position: relative; height: 100%; width: 100%;"
+            ),
+            title=f"INFO",
             easy_close=True,
             footer=None,
+            size="l"
         )
         ui.modal_show(m)
 
-    # Mapping button IDs to their respective keys
-    button_keys = {
-        'show1': 'Button 1',
-        'show2': 'Button 2',
-        'show3': 'Button 3',
-    }
-
-    # Generic reactive effect to handle button clicks
-    for button_id, key in button_keys.items():
+    for button_id, key in INFO_BUTTON_TEXT.items():
         @reactive.effect
         @reactive.event(getattr(input, button_id))
         def handle_click(b_id=button_id, k=key):
             show_modal(k)
 
-def basic_plot_function(
-        plot_data: Dict[str, List[Union[int, float]]],
-        title: str,
-        chart_group: Tuple[List[str], List[str]] = (
-                ["abundance_sample", "abundance_estimate"],
-                ["incidence_sample", "incidence_estimate"]
-        )
-) -> go.Figure:
-    plot_data = {k: v for k, v in plot_data.items() if v}
-    df: pd.DataFrame = pd.DataFrame(plot_data)
-    trace1: List[go.Scatter] = []
-    for key in chart_group[0]:
-        s: go.Scatter = go.Scatter(
-            x=df.index,
-            y=df[key],
-            mode='lines',
-            name='Abundance Sample' if key == 'abundance_sample' else 'Abundance Estimate',
-            yaxis='y1'
-        )
-        trace1.append(s)
 
-    trace2: List[go.Scatter] = []
-
-    for key in chart_group[1]:
-        s: go.Scatter = go.Scatter(
-            x=df.index,
-            y=df[key],
-            mode='lines',
-            name='Incidence Sample' if key == 'incidence_sample' else 'Incidence Estimate',
-            yaxis='y2'
-        )
-        trace2.append(s)
-
-    layout = go.Layout(
-        title=title,
-        xaxis=dict(
-            title='Sample Size'
-        ),
-        yaxis=dict(
-            title='Abundance',
-            side='left'
-        ),
-        yaxis2=dict(
-            title='Incidence',
-            side='right',
-            overlaying='y'
-        ),
-        template="simple_white",
-    )
-
-    fig = go.Figure(data=trace1 + trace2, layout=layout)
-
-    return fig
-
-app: App = App(app_ui, server)
+app: App = App(app_ui, server, static_assets=app_dir / "www")

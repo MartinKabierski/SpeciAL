@@ -47,6 +47,7 @@ class SimpleLayout(AbstractLayout):
 class SidebarOptions:
     def __init__(self) -> None:
         self.elements: dict[str, HTMLBody] = {}
+        self.info_keys: list[str] = []
 
     def add_section(self, key: str, label: str) -> None:
         self.elements[key] = ui.div(
@@ -68,48 +69,59 @@ class SidebarOptions:
             ),
             ui.div(
                 ui.input_action_button(
-                    f"{key}_info", 
-                    None,icon=faicons.icon_svg("circle-info"),
-                    style="padding: 0; margin: 0;border: none; background-color: transparent;"),
+                    f"{key}_info",
+                    None, icon=faicons.icon_svg("circle-info"),
+                    style="padding: 0; margin: 0;border: none; background-color: transparent; font-size: 26px"),
                 class_="col-2 d-flex align-items-center justify-content-center",
             ),
             class_="row"
         )
+
     def add_slider(self, key: str, label: str, min_value: float, max_value: float, value: float) -> None:
         slider = ui.input_slider(id=key, label=label, value=value, min=min_value, max=max_value)
         self.elements[key] = self._wrap_with_button(key, slider)
+        self.info_keys.append(f"{key}_info")
 
     def add_input_text(self, key: str, label: str, value: str) -> None:
         input_text = ui.input_text(id=key, label=label, value=value)
         self.elements[key] = self._wrap_with_button(key, input_text)
+        self.info_keys.append(f"{key}_info")
 
-    def add_numeric_input(self, key: str, label: str, value: float, min_value: float = None, max_value: float = None) -> None:
+    def add_numeric_input(self, key: str, label: str, value: float, min_value: float = None,
+                          max_value: float = None) -> None:
         numeric_input = ui.input_numeric(id=key, label=label, value=value, min=min_value, max=max_value)
         self.elements[key] = self._wrap_with_button(key, numeric_input)
+        self.info_keys.append(f"{key}_info")
 
     def add_checkbox(self, key: str, label: str, value: bool = False) -> None:
         checkbox = ui.input_checkbox(key, label, value)
         self.elements[key] = self._wrap_with_button(key, checkbox)
+        self.info_keys.append(f"{key}_info")
 
     def add_radio_buttons(self, key: str, label: str, choices: list[str], selected: str = None) -> None:
         radio_buttons = ui.input_radio_buttons(id=key, label=label, choices=choices, selected=selected)
         self.elements[key] = self._wrap_with_button(key, radio_buttons)
+        self.info_keys.append(f"{key}_info")
 
     def add_select_input(self, key: str, label: str, choices: list[str], selected: str = None) -> None:
         select_input = ui.input_select(id=key, label=label, choices=choices, selected=selected)
         self.elements[key] = self._wrap_with_button(key, select_input)
+        self.info_keys.append(f"{key}_info")
 
     def add_text_area(self, key: str, label: str, value: str, rows: int = 3, cols: int = 40) -> None:
         text_area = ui.input_text_area(id=key, label=label, value=value, rows=rows, cols=cols)
         self.elements[key] = self._wrap_with_button(key, text_area)
+        self.info_keys.append(f"{key}_info")
 
     def add_date_input(self, key: str, label: str, value: str) -> None:
         date_input = ui.input_date(id=key, label=label, value=value)
         self.elements[key] = self._wrap_with_button(key, date_input)
+        self.info_keys.append(f"{key}_info")
 
     def add_input_switch(self, key: str, label: str, value: bool = False) -> None:
         input_switch = ui.input_switch(id=key, label=label, value=value)
         self.elements[key] = self._wrap_with_button(key, input_switch)
+        self.info_keys.append(f"{key}_info")
 
     def apply(self) -> list[HTMLBody]:
         return list(self.elements.values())
@@ -122,6 +134,7 @@ class SidebarOptions:
         @reactive.event()
         def _():
             print("inner: ")
+
 
 class BasicCardItem:
 
@@ -187,7 +200,6 @@ class BasicCardGroup:
         )
 
 
-
 class BaseLogicView(AbstractComponent):
 
     def __init__(self, title: str, cards: List[BasicCardItem], content: HTMLBody) -> None:
@@ -215,29 +227,34 @@ class NoFileLayout(AbstractComponent):
         )
 
 
-def basic_plot_layout(d0: bool, d1: bool, d2: bool, c0: bool, c1: bool, ln: bool, use_grid: bool = False) -> HTMLBody:
-    html_plot_list: List[HTMLBody] = []
-    if d0:
-        html_plot_list.append(output_widget("tool1_d0_plot"))
-    if d1:
-        html_plot_list.append(output_widget("tool1_d1_plot"))
-    if d2:
-        html_plot_list.append(output_widget("tool1_d2_plot"))
-    if c0:
-        html_plot_list.append(output_widget("tool1_c0_plot"))
-    if c1:
-        html_plot_list.append(output_widget("tool1_c1_plot"))
-    if ln:
-        html_plot_list.append(output_widget("tool1_l_n_plot"))
+def wrap_plot(name: str, body: HTMLBody) -> HTMLBody:
+    return ui.div(
+        ui.h5(name),
+        body,
+        class_="col"
+    )
 
-    if use_grid:
-        grid_layout: List[HTMLBody] = []
-        for i in range(0, len(html_plot_list), 2):
-            row: HTMLBody = ui.div(
-                html_plot_list[i:i+2],
-                style="display: flex; justify-content: space-between; margin-bottom: 10px;"
-            )
-            grid_layout.append(row)
-        return ui.div(grid_layout, style="display: flex; flex-direction: column;")
-    else:
-        return ui.div(html_plot_list)
+
+def basic_plot_layout(
+        for_variant: Literal["1-gram", "2-gram", "3-gram", "4-gram", "5-gram", "trace_variants"]) -> HTMLBody:
+    html_plot_list: List[HTMLBody] = [
+        wrap_plot("Diversity Profile for Abundance Model", output_widget(f"tool1_plot_1")),
+        wrap_plot("Diversity Profile for Incidence Model", output_widget("tool1_plot_2")),
+        wrap_plot("Sample Diversity for Abundance Model", output_widget("tool1_plot_3")),
+        wrap_plot("Sample Diversity for Incidence Model", output_widget("tool1_plot_4")),
+        wrap_plot("Completeness & Coverage for Abundance Model", output_widget("tool1_plot_5")),
+        wrap_plot("Completeness & Coverage for Incidence Model", output_widget("tool1_plot_6")),
+        wrap_plot("Expected Sampling Effort for Abundance Model", output_widget("tool1_plot_7")),
+        wrap_plot("Expected Sampling Effort for Incidence Model", output_widget("tool1_plot_8"))
+    ]
+
+    # html_plot_list = [x for xs in html_plot_list for x in xs]
+
+    grid_layout: List[HTMLBody] = []
+    for i in range(0, len(html_plot_list), 2):
+        row: HTMLBody = ui.div(
+            html_plot_list[i:i + 2],
+            class_="row",
+        )
+        grid_layout.append(row)
+    return ui.div(grid_layout, class_="plot_view_grid")

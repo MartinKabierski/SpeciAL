@@ -7,7 +7,6 @@ import pm4py
 from htmltools import Tag
 from shiny import App, ui, render, Inputs, Outputs, Session, reactive, run_app
 from shiny.types import NavSetArg, FileInfo
-from shiny.ui._navs import NavSetCard
 from shinywidgets import render_plotly
 
 from special.estimation import species_estimator
@@ -15,7 +14,8 @@ from special.visualization.visualization import plot_expected_sampling_effort, p
     plot_diversity_profile, plot_diversity_series_all, plot_diversity_series, plot_diversity_sample_vs_estimate, \
     plot_rank_abundance
 from src import shared
-from src.layouts.layout_definition import NoFileLayout, basic_plot_layout
+from src.layouts.layout_definition import NoFileLayout, basic_plot_profile_layout, basic_plot_rank_layout, \
+    build_species_table
 from src.shared import app_dir
 from src.utils.base_tab import BaseTab
 from src.utils.constants import HTMLBody, RETRIVAL_MAP, INFO_BUTTON_TEXT
@@ -25,6 +25,12 @@ loaded_tabs: List[tuple[str, BaseTab]] = load_tabs()
 
 
 def refresh_log_profile_cache(species_retrival: str) -> None:
+    """
+    Refresh the log profile cache
+    :param species_retrival:
+    :return:
+    """
+
     if shared.LOG_PROFILE_CACHE.exists(species_retrival):
         return
 
@@ -74,8 +80,6 @@ def create_app_ui_navbar(nfl: HTMLBody = None) -> Tag:
     )
 
 
-# <link rel="="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-
 app_ui: Tag = ui.page_fluid(
     ui.head_content(
         ui.tags.link(
@@ -91,10 +95,6 @@ app_ui: Tag = ui.page_fluid(
 )
 
 
-def get_array_from_key(
-        data: Dict[str, Dict[str, Union[List[Union[int, float]], List[float]]]], key: str) \
-        -> dict[str, list[int | float]]:
-    return data.get(key, {})
 
 
 def server(input: Inputs, output: Outputs, session: Session) -> None:
@@ -118,15 +118,19 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @output
     @render.ui
-    def tool1_plot_view() -> Tag:
-        layout: HTMLBody = basic_plot_layout(current_retrival_function.get())
+    def tool1_plot_view_profiles() -> Tag:
+        layout: HTMLBody = basic_plot_profile_layout(current_retrival_function.get())
         return layout
 
-    @reactive.Effect
-    def update_tab():
-        print("Updating tab", input.tool1_nav_set())
-        refresh_log_profile_cache(input.tool1_nav_set())
-        current_retrival_function.set(input.tool1_nav_set())
+    @output
+    @render.data_frame
+    def tool1_plot_view_species_table() -> pd.DataFrame:
+        return build_species_table(shared.LOG_PROFILE_CACHE)
+
+    @output
+    @render.ui
+    def tool1_plot_view_ranks() -> Tag:
+        return basic_plot_rank_layout()
 
     # ############################
     # EVENT HANDLERS
@@ -148,6 +152,12 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         else:
             shared.FILE_SELECTED = False
             file_uploaded.set(False)
+
+    @reactive.Effect
+    def update_tab():
+        print("Updating tab", input.tool1_nav_set())
+        refresh_log_profile_cache(input.tool1_nav_set())
+        current_retrival_function.set(input.tool1_nav_set())
 
     # ############################
     # RENDER TEXT
@@ -180,7 +190,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     # RENDER PLOTS
     # ############################
     @render_plotly
-    def tool1_plot_1():#
+    def tool1_plot_1():  #
 
         key: str = current_retrival_function.get()
         return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key,
@@ -196,15 +206,15 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     def tool1_plot_3():
         key: str = current_retrival_function.get()
         return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,
-                                                 ["d0", "d1", "d2", "c1", "c0"], "",
-                                                 True)
+                                         ["d0", "d1", "d2", "c1", "c0"], "",
+                                         True)
 
     @render_plotly
     def tool1_plot_4():
         key: str = current_retrival_function.get()
         return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,
-                                                 ["d0", "d1", "d2", "c1", "c0"], "",
-                                                 False)
+                                         ["d0", "d1", "d2", "c1", "c0"], "",
+                                         False)
 
     @render_plotly
     def tool1_plot_5():
@@ -228,8 +238,17 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     def tool1_plot_8():
         key: str = current_retrival_function.get()
         return plot_expected_sampling_effort(shared.ESTIMATOR_REFERENCE, key,
-
                                              "", False)
+
+    @render_plotly
+    def tool1_plot_abundance_curve():
+        key: str = current_retrival_function.get()
+        return plot_rank_abundance(shared.ESTIMATOR_REFERENCE, key, "", True)
+
+    @render_plotly
+    def tool1_plot_incidence_curve():
+        key: str = current_retrival_function.get()
+        return plot_rank_abundance(shared.ESTIMATOR_REFERENCE, key, "", False)
 
     def show_modal(content: HTMLBody):
         m = ui.modal(

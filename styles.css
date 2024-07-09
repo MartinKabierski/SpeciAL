@@ -146,7 +146,8 @@ a.nav-link.active {
 #tool1_nav_set{
   justify-content: center
 }
-  .plot_view_grid {
+
+.plot_view_grid {
     /*display: flex;*/
     margin-left: 20px;
     margin-right: 20px;
@@ -154,9 +155,64 @@ a.nav-link.active {
     padding: 10px;
     border-radius: 10px;
     background-color: white;
+    margin-top: 25px
 }
 
 .svg-container{
   width: unset !important;
   height: unset !important;
+}
+
+/* General table styles */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* To ensure rounded corners */
+    font-family: Arial, sans-serif;
+}
+
+/* Table header styles */
+thead th {
+    background-color: #f8f8f8;
+    color: #333;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Table body row styles */
+tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Table cell styles */
+td, th {
+    padding: 10px;
+}
+
+/* Table cell styles */
+td {
+    color: #555;
+}
+
+/* Hover effect for table rows */
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Additional styles for rounded corners */
+tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
 }

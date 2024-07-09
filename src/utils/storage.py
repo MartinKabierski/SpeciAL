@@ -5,6 +5,7 @@ import pandas as pd
 SPECIES_KEY: str = "species"
 METRICS_KEY: str = "metric"
 
+
 class StorageManager:
     """A singleton class to manage the storage of data."""
     _instance: Optional['StorageManager'] = None

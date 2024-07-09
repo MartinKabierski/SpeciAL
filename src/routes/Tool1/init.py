@@ -10,7 +10,7 @@ from shiny.ui._navs import NavSetCard, NavPanel, NavSet
 from src.layouts.layout_definition import SimpleLayout, SidebarOptions, BaseLogicView, BasicCardItem
 from src.utils.base_tab import BaseTab
 from src.utils.constants import HTMLBody, RETRIVAL_MAP
-from src.utils.functions import center, text_bold, row, text_icon
+from src.utils.functions import center, text_bold, row, text_icon, wrapped_div_to_container
 
 
 class Tab1(BaseTab):
@@ -28,7 +28,7 @@ class Tab1(BaseTab):
             ui.nav_panel("3-gram"),
             ui.nav_panel("4-gram"),
             ui.nav_panel("5-gram"),
-            ui.nav_panel("trace_variants"),
+            ui.nav_panel("Trace Variants", value="trace_variants"),
             id="tool1_nav_set",
         )
         # nav_set_class_ref.ul_class = "ul-for-species"
@@ -43,8 +43,8 @@ class Tab1(BaseTab):
             BasicCardItem("Number Traces", text_icon("tool1_event_log_length", "ellipsis")),
             BasicCardItem("Mean Length", text_icon("tool1_event_log_avg_trace_length", "calculator")),
             BasicCardItem("Degree of Spatial Aggregation", text_icon("tool1_degree_of_aggregation", "chart-bar")),
-            BasicCardItem("Rank Abundance Curve for Abundance Model", text_icon("tool1_rank_abundance", "chart-bar")),
-            BasicCardItem("Rank Abundance Curve for Incidence Model", text_icon("tool1_rank_incidence", "chart-bar")),
+            # BasicCardItem("Rank Abundance Curve for Abundance Model", text_icon("tool1_rank_abundance", "chart-bar")),
+            # BasicCardItem("Rank Abundance Curve for Incidence Model", text_icon("tool1_rank_incidence", "chart-bar")),
         ], ui.div(
             # center(
             #     row(
@@ -53,7 +53,13 @@ class Tab1(BaseTab):
             #                            style="margin-left: 10px;")
             #     )
             # ),
-            ui.output_ui("tool1_plot_view")
+
+            wrapped_div_to_container(ui.output_ui("tool1_plot_view_ranks"), title="Rank"),
+            wrapped_div_to_container(ui.div(
+                ui.output_data_frame("tool1_plot_view_species_table"),
+                style="display: flex; justify-content: center; align-items: center; padding: 10px;",
+            ), title="Species Table"),
+            wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles"),
         ))
 
         self.component: CardItem = logic_view.apply()

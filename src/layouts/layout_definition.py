@@ -3,12 +3,14 @@ from abc import ABC
 from typing import Any, Callable, List, Optional, Literal
 
 import faicons
+import pandas as pd
 from htmltools import Tag
 from shiny import ui, reactive
 from shinywidgets import output_widget
 
 from src import shared
 from src.utils.constants import HTMLBody
+from src.utils.storage import StorageManager
 
 
 class AbstractComponent(ABC):
@@ -235,7 +237,23 @@ def wrap_plot(name: str, body: HTMLBody) -> HTMLBody:
     )
 
 
-def basic_plot_layout(
+def basic_plot_rank_layout() -> HTMLBody:
+    html_plot_list: List[HTMLBody] = [
+        wrap_plot("Rank Abundance Curve for Abundance Model", output_widget(f"tool1_plot_abundance_curve")),
+        wrap_plot("Rank Abundance Curve for Incidence Model", output_widget("tool1_plot_incidence_curve")),
+    ]
+
+    grid_layout: List[HTMLBody] = []
+    for i in range(0, len(html_plot_list), 2):
+        row: HTMLBody = ui.div(
+            html_plot_list[i:i + 2],
+            class_="row",
+        )
+        grid_layout.append(row)
+    return ui.div(grid_layout)
+
+
+def basic_plot_profile_layout(
         for_variant: Literal["1-gram", "2-gram", "3-gram", "4-gram", "5-gram", "trace_variants"]) -> HTMLBody:
     html_plot_list: List[HTMLBody] = [
         wrap_plot("Diversity Profile for Abundance Model", output_widget(f"tool1_plot_1")),
@@ -257,4 +275,52 @@ def basic_plot_layout(
             class_="row",
         )
         grid_layout.append(row)
-    return ui.div(grid_layout, class_="plot_view_grid")
+    return ui.div(grid_layout)
+
+
+def build_species_table(storage: StorageManager) -> pd.DataFrame:
+    """
+    Build a DataFrame to display species metrics in the required format.
+
+    Abundance:
+    D0: speciesEstimator.metrics["abundance_estimate_d0"][-1]
+    D1: speciesEstimator.metrics["abundance_estimate_d1"][-1]
+    D2: speciesEstimator.metrics["abundance_estimate_d2"][-1]
+
+    C0: speciesEstimator.metrics["abundance_c0"][-1]
+    C1: speciesEstimator.metrics["abundance_c1"][-1]
+
+    Incidence:
+    D0: speciesEstimator.metrics["incidence_estimate_d0"][-1]
+    D1: speciesEstimator.metrics["incidence_estimate_d1"][-1]
+    D2: speciesEstimator.metrics["incidence_estimate_d2"][-1]
+
+    C0: speciesEstimator.metrics["incidence_c0"][-1]
+    C1: speciesEstimator.metrics["incidence_c1"][-1]
+
+    :return: pd.DataFrame
+    """
+    # Abundance
+    d0_a = storage.get_value_by_metric("abundance_estimate_d0").iloc[-1]
+    d1_a = storage.get_value_by_metric("abundance_estimate_d1").iloc[-1]
+    d2_a = storage.get_value_by_metric("abundance_estimate_d2").iloc[-1]
+    c0_a = storage.get_value_by_metric("abundance_c0").iloc[-1]
+    c1_a = storage.get_value_by_metric("abundance_c1").iloc[-1]
+
+    # Incidence
+    d0_i = storage.get_value_by_metric("incidence_estimate_d0").iloc[-1]
+    d1_i = storage.get_value_by_metric("incidence_estimate_d1").iloc[-1]
+    d2_i = storage.get_value_by_metric("incidence_estimate_d2").iloc[-1]
+    c0_i = storage.get_value_by_metric("incidence_c0").iloc[-1]
+    c1_i = storage.get_value_by_metric("incidence_c1").iloc[-1]
+
+    # Constructing the DataFrame
+    data = {
+        "°": ["D0", "D1", "D2", "C0", "C1"],
+        "Abundance Model": [d0_a, d1_a, d2_a, c0_a, c1_a],
+        "Incidence Model": [d0_i, d1_i, d2_i, c0_i, c1_i]
+    }
+
+    result = pd.DataFrame(data)
+    print(result.to_dict())
+    return result

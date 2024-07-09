@@ -43,3 +43,32 @@ def row(*elements: HTMLBody, gap: str = "5px") -> HTMLBody:
 
 def text_icon(text_key: str, icon: str) -> HTMLBody:
     return center(row(fa.icon_svg(icon), ui.output_text(text_key)))
+
+
+def wrapped_div_to_container(*elements: HTMLBody, title: str = "") -> HTMLBody:
+    container_style = (
+        "margin-left: 20px; "
+        "margin-right: 20px; "
+        "border: 1px solid black; "
+        "padding: 10px; "
+        "border-radius: 10px; "
+        "background-color: white; "
+        "margin-top: 25px; "
+        "position: relative;"
+    )
+
+    legend_style = (
+        "font-weight: bold; "
+        "padding: 0 10px; "
+        "position: absolute; "
+        "top: -12px; "
+        "left: 20px; "
+        "background-color: white;"
+    )
+
+    title_html = ui.span(title, style=legend_style) if title else ""
+
+    return ui.div(
+        ui.div(title_html, ui.div(elements, style="padding-top: 10px;")),
+        style=container_style
+    )

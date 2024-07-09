@@ -36,7 +36,9 @@ def refresh_log_profile_cache(species_retrival: str) -> None:
 
     step_size = int(len(shared.EVENT_LOG_REF) / 200)
     estimator = species_estimator.SpeciesEstimator(d0=True, d1=True, d2=True, c0=True, c1=True, step_size=step_size)
-    estimator.register(species_retrival, RETRIVAL_MAP[species_retrival])
+
+    for s in RETRIVAL_MAP.keys():
+        estimator.register(s, RETRIVAL_MAP[s])
 
     estimator.apply(shared.EVENT_LOG_REF)
     df = estimator.to_dataFrame()
@@ -89,12 +91,11 @@ app_ui: Tag = ui.page_fluid(
             crossorigin="anonymous"
         )
     ),
+    ui.include_js("index.js"),
     ui.output_ui("basic_layout"),
     ui.include_css(app_dir / "styles.css", method="link_files"),
     class_="overall-page"
 )
-
-
 
 
 def server(input: Inputs, output: Outputs, session: Session) -> None:

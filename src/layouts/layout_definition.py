@@ -275,6 +275,9 @@ def basic_plot_profile_layout(
             class_="row",
         )
         grid_layout.append(row)
+
+    grid_layout.insert( 0, ui.h3("Diversity Profiles"))
+    grid_layout.insert( 3, ui.h3("Completeness Profiles"))
     return ui.div(grid_layout)
 
 
@@ -322,5 +325,5 @@ def build_species_table(storage: StorageManager) -> pd.DataFrame:
     }
 
     result = pd.DataFrame(data)
-    print(result.to_dict())
+
     return result

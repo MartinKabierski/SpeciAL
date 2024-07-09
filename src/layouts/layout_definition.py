@@ -196,7 +196,7 @@ class BasicCardGroup:
                     f"{' justify-content: space-between;' if self.stretch_full_length else ''}"
         return ui.div(
             [card.apply() for card in self.cards],
-            style=style
+            style=style + "margin: 10px 20px 0px 20px"
         )
 
 

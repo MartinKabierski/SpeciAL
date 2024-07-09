@@ -23,12 +23,12 @@ class Tab1(BaseTab):
 
     def _create_layout(self) -> HTMLBody:
         nav_set_class_ref: NavSet = ui.navset_tab(
-            ui.nav_panel("1-gram", ui.div("1gram")),
-            ui.nav_panel("2-gram", ui.div("2gram")),
-            ui.nav_panel("3-gram", ui.div("3gram")),
-            ui.nav_panel("4-gram", ui.div("4gram")),
-            ui.nav_panel("5-gram", ui.div("5gram")),
-            ui.nav_panel("trace_variants", ui.div("trace_variants")),
+            ui.nav_panel("1-gram"),
+            ui.nav_panel("2-gram"),
+            ui.nav_panel("3-gram"),
+            ui.nav_panel("4-gram"),
+            ui.nav_panel("5-gram"),
+            ui.nav_panel("trace_variants"),
             id="tool1_nav_set",
         )
         # nav_set_class_ref.ul_class = "ul-for-species"
@@ -40,11 +40,11 @@ class Tab1(BaseTab):
 
     def build_main_ui_content(self) -> HTMLBody:
         logic_view = BaseLogicView("Updated Results", [
-            BasicCardItem("Event Log Length", text_icon("tool1_event_log_length", "ellipsis")),
-            BasicCardItem("Average Trace Length", text_icon("tool1_event_log_avg_trace_length", "calculator")),
+            BasicCardItem("Number Traces", text_icon("tool1_event_log_length", "ellipsis")),
+            BasicCardItem("Mean Length", text_icon("tool1_event_log_avg_trace_length", "calculator")),
             BasicCardItem("Degree of Spatial Aggregation", text_icon("tool1_degree_of_aggregation", "chart-bar")),
-            BasicCardItem("Interesting Metric 1", "Some Content"),
-            BasicCardItem("Interesting Metric 1", "Some Content"),
+            BasicCardItem("Rank Abundance Curve for Abundance Model", text_icon("tool1_rank_abundance", "chart-bar")),
+            BasicCardItem("Rank Abundance Curve for Incidence Model", text_icon("tool1_rank_incidence", "chart-bar")),
         ], ui.div(
             # center(
             #     row(

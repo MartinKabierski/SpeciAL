@@ -6,6 +6,7 @@ from special.estimation.species_estimator import SpeciesEstimator
 import plotly.graph_objects as go
 
 # Constants
+# Drei spalten (Benennung)
 
 # Plot options and settings
 LAYOUT_TEMPLATE = "simple_white"

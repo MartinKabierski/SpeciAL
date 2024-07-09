@@ -42,8 +42,6 @@ INFO_BUTTON_TEXT: dict[str, HTMLBody] = {
         ui.strong("4-gram"), ": Retrieve species based on the frequency of quadruplets of activities in the event log.", ui.br(),
         ui.strong("5-gram"), ": Retrieve species based on the frequency of quintuplets of activities in the event log.", ui.br(),
         ui.strong("trace_variants"), ": Retrieve species based on the frequency of trace variants in the event log.", ui.br(),
-        ui.strong("2-gram_complete_log"), ": Retrieve species based on the frequency of activities in the event log.", ui.br(),
-        ui.strong("2-gram_all_metrics"), ": Retrieve species based on the frequency of activities in the event log."
     ),
     'tool1_abundance_info': ui.p(
         ui.strong("Abundance"), ui.br(),

@@ -1,5 +1,6 @@
 from typing import List, Any, Dict, Union, Tuple, Optional, Literal, Callable
 
+import faicons
 import pandas as pd
 import plotly.graph_objects as go
 import pm4py
@@ -69,7 +70,11 @@ def generate_nav_controls(tabs: List[tuple[str, BaseTab]], nfl: HTMLBody = None)
 def create_app_ui_navbar(nfl: HTMLBody = None) -> Tag:
     return ui.page_navbar(
         *generate_nav_controls(loaded_tabs, nfl=nfl),
+
     )
+
+
+# <link rel="="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
 app_ui: Tag = ui.page_fluid(
     ui.head_content(
@@ -161,11 +166,22 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         df: pd.DataFrame = shared.EVENT_LOG_REF
         return f"{round(df.groupby('case:concept:name').size().mean(), 3) if not shared.EVENT_LOG_REF.empty else 'MISSING'}"
 
+    @render.text
+    def tool1_rank_abundance() -> str:
+        values: pd.Series = shared.LOG_PROFILE_CACHE.get_value_by_metric("rank_abundance")
+        return str(round(values.mean(), 3) if not values.empty else "MISSING")
+
+    @render.text
+    def tool1_rank_incidence() -> str:
+        values: pd.Series = shared.LOG_PROFILE_CACHE.get_value_by_metric("degree_of_aggregation")
+        return str(round(values.mean(), 3) if not values.empty else "MISSING")
+
     # ############################
     # RENDER PLOTS
     # ############################
     @render_plotly
-    def tool1_plot_1():
+    def tool1_plot_1():#
+
         key: str = current_retrival_function.get()
         return plot_diversity_profile(shared.ESTIMATOR_REFERENCE, key,
                                       "", True)
@@ -179,14 +195,14 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     @render_plotly
     def tool1_plot_3():
         key: str = current_retrival_function.get()
-        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key,
+        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,
                                                  ["d0", "d1", "d2", "c1", "c0"], "",
                                                  True)
 
     @render_plotly
     def tool1_plot_4():
         key: str = current_retrival_function.get()
-        return plot_diversity_sample_vs_estimate(shared.ESTIMATOR_REFERENCE, key,
+        return plot_diversity_series_all(shared.ESTIMATOR_REFERENCE, key,
                                                  ["d0", "d1", "d2", "c1", "c0"], "",
                                                  False)
 

@@ -202,7 +202,10 @@ class NoFileLayout(AbstractComponent):
     def apply(self) -> HTMLBody:
         return ui.card(
             ui.div(
-                ui.input_file("file_upload", "Select a file to view", accept=".xes")
+                ui.input_file("file_upload", "Select a file to view", accept=".xes"),
+                ui.div("Please upload an event log (.xes) to use the functionality of ", ui.strong("SpeciAL4pm-live"), ui.br(), ui.br(),
+                       "You are welcome to use the ",ui.a("SEPSIS", href="https://data.4tu.nl/articles/dataset/Sepsis_Cases_-_Event_Log/12707639", target="blank")," event log for testing purposes.",
+                       class_="alert alert-info", role="alert")
             ),
             style="display: flex; flex-direction: column; align-items: center; min-height: 70vh"
         )
@@ -255,12 +258,12 @@ def basic_plot_profile_layout(
         )
         grid_layout.append(row)
 
-    grid_layout.insert( 0, ui.h3("Diversity Profiles"))
-    grid_layout.insert( 3, ui.h3("Completeness Profiles"))
+    grid_layout.insert( 0, wrap_with_button("tool1_profiles_info", ui.h3("Diversity Profiles"),))
+    grid_layout.insert( 3, wrap_with_button("tool1_completeness_profile", ui.h3("Completeness Profiles"),))
     return ui.div(grid_layout)
 
 
-def build_species_table(storage: StorageManager) -> pd.DataFrame:
+def build_species_table(storage: StorageManager, species: str) -> pd.DataFrame:
     """
     Build a DataFrame to display species metrics in the required format.
 
@@ -283,26 +286,31 @@ def build_species_table(storage: StorageManager) -> pd.DataFrame:
     :return: pd.DataFrame
     """
     # Abundance
-    d0_a = storage.get_value_by_metric("abundance_estimate_d0").iloc[-1]
-    d1_a = storage.get_value_by_metric("abundance_estimate_d1").iloc[-1]
-    d2_a = storage.get_value_by_metric("abundance_estimate_d2").iloc[-1]
-    c0_a = storage.get_value_by_metric("abundance_c0").iloc[-1]
-    c1_a = storage.get_value_by_metric("abundance_c1").iloc[-1]
+    d0_a = storage.filter_for_metric(species, "abundance_estimate_d0")["abundance_estimate_d0"][-1]
+    d1_a = storage.filter_for_metric(species, "abundance_estimate_d1")["abundance_estimate_d1"][-1]
+    d2_a = storage.filter_for_metric(species, "abundance_estimate_d2")["abundance_estimate_d2"][-1]
+    c0_a = storage.filter_for_metric(species, "abundance_c0")["abundance_c0"][-1]
+    c1_a = storage.filter_for_metric(species, "abundance_c1")["abundance_c1"][-1]
 
     # Incidence
-    d0_i = storage.get_value_by_metric("incidence_estimate_d0").iloc[-1]
-    d1_i = storage.get_value_by_metric("incidence_estimate_d1").iloc[-1]
-    d2_i = storage.get_value_by_metric("incidence_estimate_d2").iloc[-1]
-    c0_i = storage.get_value_by_metric("incidence_c0").iloc[-1]
-    c1_i = storage.get_value_by_metric("incidence_c1").iloc[-1]
+    d0_i = storage.filter_for_metric(species, "incidence_estimate_d0")["incidence_estimate_d0"][-1]
+    d1_i = storage.filter_for_metric(species, "incidence_estimate_d1")["incidence_estimate_d1"][-1]
+    d2_i = storage.filter_for_metric(species, "incidence_estimate_d2")["incidence_estimate_d2"][-1]
+    c0_i = storage.filter_for_metric(species, "incidence_c0")["incidence_c0"][-1]
+    c1_i = storage.filter_for_metric(species, "incidence_c1")["incidence_c1"][-1]
 
     # Constructing the DataFrame
     data = {
-        "°": ["D0", "D1", "D2", "C0", "C1"],
+        "°": [
+            "D0 (Species Richness)",
+            "D1 (Exp. Shannon Entropy)",
+            "D2 (Inverse Simpson Diversity)",
+            "C0 (Completeness)",
+            "C1 (Coverage)"
+        ],
         "Abundance Model": [d0_a, d1_a, d2_a, c0_a, c1_a],
         "Incidence Model": [d0_i, d1_i, d2_i, c0_i, c1_i]
     }
 
     result = pd.DataFrame(data)
-
     return result

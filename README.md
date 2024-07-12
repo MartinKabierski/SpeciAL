@@ -1,15 +1,6 @@
 # SpeciAL 
 
-This repository contains ... 
-
-## Table of Contents
-
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+This repository contains ...
 
 ## Features
 
@@ -53,3 +44,9 @@ To run this application, you need the following software and libraries:
 To start the application, run the following command:
 ```sh
 python app.py
+
+## Deployment
+Replace `/path/to/project/root` with the path to the project root directory, where the app.py is located.
+```sh
+rsconnect deploy shiny /path/to/project/root
+```

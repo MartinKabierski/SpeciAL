@@ -46,5 +46,7 @@ INFO_BUTTON_TEXT: dict[str, HTMLBody] = {
     "tool1_rank_info": ui.p(ui.strong("Rank"), ": The rank of the species based on the metric selected."),
     "tool1_species_table_info": ui.p(ui.strong("Species Table"), ": The table of species and the metric selected."),
     "tool1_profiles_info": ui.p(ui.strong("Profiles"), ": The profiles of the species based on the metric selected."),
+    "tool1_completeness_profile":
+        ui.p(ui.strong("Completeness Profile"), ": The completeness profile of the species based on the metric selected."),
 }
 

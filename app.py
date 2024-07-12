@@ -1,6 +1,7 @@
 from typing import List, Any, Dict, Union, Tuple, Optional, Literal, Callable
 
 import faicons
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pm4py
@@ -133,7 +134,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     @output
     @render.data_frame
     def tool1_plot_view_species_table() -> pd.DataFrame:
-        return build_species_table(shared.LOG_PROFILE_CACHE)
+        return build_species_table(shared.LOG_PROFILE_CACHE, current_retrival_function.get())
 
     @output
     @render.ui
@@ -176,8 +177,12 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @render.text
     def tool1_degree_of_aggregation() -> str:
-        values: pd.Series = shared.LOG_PROFILE_CACHE.get_value_by_metric("degree_of_aggregation")
-        return str(round(values.mean(), 3) if not values.empty else "MISSING")
+
+        values:  dict[str, list[int | float]] = shared.LOG_PROFILE_CACHE.filter_for_metric(
+            current_retrival_function.get(),
+            "degree_of_aggregation"
+        )
+        return round(np.mean(values["degree_of_aggregation"]), 3)
 
     @render.text
     def tool1_event_log_avg_trace_length() -> str:

@@ -44,25 +44,18 @@ class Tab1(BaseTab):
             BasicCardItem("Mean Length", text_icon("tool1_event_log_avg_trace_length", "calculator")),
             BasicCardItem("Degree of Spatial Aggregation", text_icon("tool1_degree_of_aggregation", "chart-bar")),
         ], ui.div(
-            # center(
-            #     row(
-            #         ui.input_switch("tool1_set_grid_mode", "Grid?"),
-            #         ui.download_button("tool1_download_pdf", "Download PDF", icon=faicons.icon_svg("download"),
-            #                            style="margin-left: 10px;")
-            #     )
-            # ),
-
             wrapped_div_to_container(ui.output_ui("tool1_plot_view_ranks"), title="Rank", button_key="tool1_rank_info"),
             wrapped_div_to_container(ui.div(
                 ui.output_data_frame("tool1_plot_view_species_table"),
                 style="display: flex; justify-content: center; align-items: center; padding: 10px;",
             ), title="Species Table", button_key="tool1_species_table_info"),
-            wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles", button_key="tool1_profiles_info"),
+            wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles"),
         ))
 
         self.component: CardItem = logic_view.apply()
         self.component.id = __name__
         self.component.style = self.STYLE
+
         return self.component
 
     def on_rerender(self) -> None:

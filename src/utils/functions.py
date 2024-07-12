@@ -71,7 +71,8 @@ def wrapped_div_to_container(*elements: HTMLBody, title: str = "", button_key: O
     title_html = ui.span(title, style=legend_style) if title else ""
 
     if button_key:
-        title_html: HTMLBody = ui.div(title_html, create_info_button(button_key, "15px"), style="display: flex; align-items: center;")
+        title_html: HTMLBody = ui.div(title_html, create_info_button(button_key, "15px"),
+                                      style="display: flex; align-items: center;")
 
     return ui.div(
         ui.div(title_html, ui.div(elements, style="padding-top: 10px;")),
@@ -83,11 +84,11 @@ def wrap_with_button(key: str, input_element: HTMLBody) -> HTMLBody:
     return ui.div(
         ui.div(
             input_element,
-            class_="col-10 d-flex align-items-center justify-content-center"
+            class_="col-4 d-flex"
         ),
         ui.div(
             create_info_button(key),
-            class_="col-2 d-flex align-items-center justify-content-center",
+            class_="col-8 d-flex",
         ),
         class_="row"
     )
@@ -98,3 +99,27 @@ def create_info_button(key: str, size: str = "26px") -> HTMLBody:
         f"{key}",
         None, icon=faicons.icon_svg("circle-info"),
         style=f"padding: 0 0 0 15px; margin: 0;border: none; background-color: transparent; font-size: {size};")
+
+
+#         .prescript {
+#             position: relative;
+#             top: -0.5em;
+#             font-size: 0.75em;
+#         }
+#         .operator {
+#             display: inline-block;
+#             position: relative;
+#             top: 0;
+#         }
+#     </style>
+# </head>
+# <body>
+#     <p>
+#         Hier ist der Ausdruck direkt in HTML dargestellt:
+#         <span class="prescript">0</span><span class="operator">D</span>
+
+def mathematical_typesetting(prescript: str, operator: str) -> HTMLBody:
+    return ui.span(
+        ui.span(prescript, style="position: relative; top: -0.5em; font-size: 0.75em"),
+        ui.span(operator, style="display: inline-block; position: relative; top: 0;")
+    )

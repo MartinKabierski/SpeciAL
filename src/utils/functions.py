@@ -1,6 +1,8 @@
 import importlib
 import os
+from typing import Optional
 
+import faicons
 from shiny import ui
 
 from src.utils.base_tab import BaseTab
@@ -45,7 +47,7 @@ def text_icon(text_key: str, icon: str) -> HTMLBody:
     return center(row(fa.icon_svg(icon), ui.output_text(text_key)))
 
 
-def wrapped_div_to_container(*elements: HTMLBody, title: str = "") -> HTMLBody:
+def wrapped_div_to_container(*elements: HTMLBody, title: str = "", button_key: Optional[str] = None) -> HTMLBody:
     container_style = (
         "margin-left: 20px; "
         "margin-right: 20px; "
@@ -68,7 +70,31 @@ def wrapped_div_to_container(*elements: HTMLBody, title: str = "") -> HTMLBody:
 
     title_html = ui.span(title, style=legend_style) if title else ""
 
+    if button_key:
+        title_html: HTMLBody = ui.div(title_html, create_info_button(button_key, "15px"), style="display: flex; align-items: center;")
+
     return ui.div(
         ui.div(title_html, ui.div(elements, style="padding-top: 10px;")),
         style=container_style
     )
+
+
+def wrap_with_button(key: str, input_element: HTMLBody) -> HTMLBody:
+    return ui.div(
+        ui.div(
+            input_element,
+            class_="col-10 d-flex align-items-center justify-content-center"
+        ),
+        ui.div(
+            create_info_button(key),
+            class_="col-2 d-flex align-items-center justify-content-center",
+        ),
+        class_="row"
+    )
+
+
+def create_info_button(key: str, size: str = "26px") -> HTMLBody:
+    return ui.input_action_button(
+        f"{key}",
+        None, icon=faicons.icon_svg("circle-info"),
+        style=f"padding: 0 0 0 15px; margin: 0;border: none; background-color: transparent; font-size: {size};")

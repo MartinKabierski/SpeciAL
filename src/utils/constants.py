@@ -35,7 +35,7 @@ RETRIVAL_MAP = {
 }
 
 INFO_BUTTON_TEXT: dict[str, HTMLBody] = {
-    'tool1_select_retrival_info': ui.p(ui.strong("Species Retrieval Functions"), ui.br(),
+    'tool1_main_page_info':ui.p(ui.strong("Species Retrieval Functions"), ui.br(),
         ui.strong("1-gram"), ": Retrieve species based on the frequency of activities in the event log.", ui.br(),
         ui.strong("2-gram"), " : Retrieve species based on the frequency of pairs of activities in the event log.", ui.br(),
         ui.strong("3-gram"), ": Retrieve species based on the frequency of triplets of activities in the event log.", ui.br(),
@@ -43,13 +43,8 @@ INFO_BUTTON_TEXT: dict[str, HTMLBody] = {
         ui.strong("5-gram"), ": Retrieve species based on the frequency of quintuplets of activities in the event log.", ui.br(),
         ui.strong("trace_variants"), ": Retrieve species based on the frequency of trace variants in the event log.", ui.br(),
     ),
-    'tool1_abundance_info': ui.p(
-        ui.strong("Abundance"), ui.br(),
-        "Abundance is a measure of the number of times a species appears in the event log", ui.br(),
-            ui.strong("Incidence"), ui.br(),
-        "Incidence is a measure of the number of traces in which a species appears"
-    )
-                                 ,
-    'tool1_step_size_info': 'Button 3',
+    "tool1_rank_info": ui.p(ui.strong("Rank"), ": The rank of the species based on the metric selected."),
+    "tool1_species_table_info": ui.p(ui.strong("Species Table"), ": The table of species and the metric selected."),
+    "tool1_profiles_info": ui.p(ui.strong("Profiles"), ": The profiles of the species based on the metric selected."),
 }
 

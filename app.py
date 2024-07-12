@@ -19,7 +19,7 @@ from src.layouts.layout_definition import NoFileLayout, basic_plot_profile_layou
 from src.shared import app_dir
 from src.utils.base_tab import BaseTab
 from src.utils.constants import HTMLBody, RETRIVAL_MAP, INFO_BUTTON_TEXT
-from src.utils.functions import load_tabs
+from src.utils.functions import load_tabs, wrap_with_button, create_info_button
 
 loaded_tabs: List[tuple[str, BaseTab]] = load_tabs()
 
@@ -32,7 +32,9 @@ def refresh_log_profile_cache(species_retrival: str) -> None:
     """
 
     if shared.LOG_PROFILE_CACHE.exists(species_retrival):
+        print("Cache exists")
         return
+    print("Cache does not exist")
 
     step_size = int(len(shared.EVENT_LOG_REF) / 200)
     estimator = species_estimator.SpeciesEstimator(d0=True, d1=True, d2=True, c0=True, c1=True, step_size=step_size)
@@ -46,9 +48,16 @@ def refresh_log_profile_cache(species_retrival: str) -> None:
     shared.ESTIMATOR_REFERENCE = estimator
 
 
-def _decorator(name: str, ui_body: HTMLBody) -> Any:
+def decorator(name: str, ui_body: HTMLBody) -> Any:
     return ui.div(
-        ui.panel_title(name), ui_body, class_="special-main-panel"
+        ui.span(
+            ui.panel_title(name),
+            create_info_button("tool1_main_page_info"),
+            class_="d-flex align-items-center"
+
+        ),
+        ui_body,
+        class_="special-main-panel"
     )
 
 
@@ -60,7 +69,7 @@ def generate_nav_controls(tabs: List[tuple[str, BaseTab]], nfl: HTMLBody = None)
             results.append(
                 ui.nav_panel(
                     tab[0],
-                    _decorator(tab[0], nfl if i == 0 else None),
+                    decorator(tab[0], nfl if i == 0 else None),
                     icon=tab[1].ICON,
                 )
             )
@@ -68,7 +77,7 @@ def generate_nav_controls(tabs: List[tuple[str, BaseTab]], nfl: HTMLBody = None)
             results.append(
                 ui.nav_panel(
                     tab[0],
-                    _decorator(tab[0], tab[1].init_component()),
+                    decorator(tab[0], tab[1].init_component()),
                     icon=tab[1].ICON,
                 )
             )
@@ -86,8 +95,8 @@ app_ui: Tag = ui.page_fluid(
     ui.head_content(
         ui.tags.link(
             rel="stylesheet",
-            href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css",
-            integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu",
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH",
             crossorigin="anonymous"
         )
     ),
@@ -97,10 +106,8 @@ app_ui: Tag = ui.page_fluid(
     class_="overall-page"
 )
 
-
 def server(input: Inputs, output: Outputs, session: Session) -> None:
     file_uploaded = reactive.Value(False)
-    refresh_plots = reactive.Value(False)
     current_retrival_function = reactive.Value[
         Literal["1-gram", "2-gram", "3-gram", "4-gram", "5-gram", "trace_variants"]
     ]("1-gram")
@@ -251,7 +258,12 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         key: str = current_retrival_function.get()
         return plot_rank_abundance(shared.ESTIMATOR_REFERENCE, key, "", False)
 
+    ############################
+    # RENDER INFO TEXTS
+    ############################
+
     def show_modal(content: HTMLBody):
+        print("Showing modal")
         m = ui.modal(
             ui.hr(style="margin: 0; padding:0;"),
             ui.div(
@@ -259,20 +271,20 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
                 ui.p("", style="min-height: 150px;"),
                 ui.img(src="bird.png", alt="Placeholder image",
                        style="position: absolute; bottom: 0; left: 0; opacity: 0.5; width: 100px;"),
-
                 ui.img(src="glasses.png", alt="Placeholder image",
                        style="position: absolute; bottom: 0; right: 0; opacity: 0.5; width: 150px;"),
-                style="position: relative; height: 100%; width: 100%;"
+                style="position: relative; height: 100%; width: 100%; overflow: auto;"
             ),
             title=f"INFO",
             easy_close=True,
             footer=None,
-            size="l"
+            size="l",
+            style="z-index: 1050;"  # Ensure the modal appears above other elements
         )
         ui.modal_show(m)
 
     for button_id, key in INFO_BUTTON_TEXT.items():
-        @reactive.effect
+        @reactive.Effect
         @reactive.event(getattr(input, button_id))
         def handle_click(b_id=button_id, k=key):
             show_modal(k)

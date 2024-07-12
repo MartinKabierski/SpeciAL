@@ -43,8 +43,6 @@ class Tab1(BaseTab):
             BasicCardItem("Number Traces", text_icon("tool1_event_log_length", "ellipsis")),
             BasicCardItem("Mean Length", text_icon("tool1_event_log_avg_trace_length", "calculator")),
             BasicCardItem("Degree of Spatial Aggregation", text_icon("tool1_degree_of_aggregation", "chart-bar")),
-            # BasicCardItem("Rank Abundance Curve for Abundance Model", text_icon("tool1_rank_abundance", "chart-bar")),
-            # BasicCardItem("Rank Abundance Curve for Incidence Model", text_icon("tool1_rank_incidence", "chart-bar")),
         ], ui.div(
             # center(
             #     row(
@@ -54,12 +52,12 @@ class Tab1(BaseTab):
             #     )
             # ),
 
-            wrapped_div_to_container(ui.output_ui("tool1_plot_view_ranks"), title="Rank"),
+            wrapped_div_to_container(ui.output_ui("tool1_plot_view_ranks"), title="Rank", button_key="tool1_rank_info"),
             wrapped_div_to_container(ui.div(
                 ui.output_data_frame("tool1_plot_view_species_table"),
                 style="display: flex; justify-content: center; align-items: center; padding: 10px;",
-            ), title="Species Table"),
-            wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles"),
+            ), title="Species Table", button_key="tool1_species_table_info"),
+            wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles", button_key="tool1_profiles_info"),
         ))
 
         self.component: CardItem = logic_view.apply()

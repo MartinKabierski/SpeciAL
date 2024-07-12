@@ -10,6 +10,7 @@ from shinywidgets import output_widget
 
 from src import shared
 from src.utils.constants import HTMLBody
+from src.utils.functions import wrap_with_button
 from src.utils.storage import StorageManager
 
 
@@ -63,66 +64,50 @@ class SidebarOptions:
             ui.hr(style="margin: 15px 0 0 0;")
         )
 
-    def _wrap_with_button(self, key: str, input_element: HTMLBody) -> HTMLBody:
-        return ui.div(
-            ui.div(
-                input_element,
-                class_="col-10 d-flex align-items-center justify-content-center"
-            ),
-            ui.div(
-                ui.input_action_button(
-                    f"{key}_info",
-                    None, icon=faicons.icon_svg("circle-info"),
-                    style="padding: 0; margin: 0;border: none; background-color: transparent; font-size: 26px"),
-                class_="col-2 d-flex align-items-center justify-content-center",
-            ),
-            class_="row"
-        )
-
     def add_slider(self, key: str, label: str, min_value: float, max_value: float, value: float) -> None:
         slider = ui.input_slider(id=key, label=label, value=value, min=min_value, max=max_value)
-        self.elements[key] = self._wrap_with_button(key, slider)
+        self.elements[key] = wrap_with_button(key, slider)
         self.info_keys.append(f"{key}_info")
 
     def add_input_text(self, key: str, label: str, value: str) -> None:
         input_text = ui.input_text(id=key, label=label, value=value)
-        self.elements[key] = self._wrap_with_button(key, input_text)
+        self.elements[key] = wrap_with_button(key, input_text)
         self.info_keys.append(f"{key}_info")
 
     def add_numeric_input(self, key: str, label: str, value: float, min_value: float = None,
                           max_value: float = None) -> None:
         numeric_input = ui.input_numeric(id=key, label=label, value=value, min=min_value, max=max_value)
-        self.elements[key] = self._wrap_with_button(key, numeric_input)
+        self.elements[key] = wrap_with_button(key, numeric_input)
         self.info_keys.append(f"{key}_info")
 
     def add_checkbox(self, key: str, label: str, value: bool = False) -> None:
         checkbox = ui.input_checkbox(key, label, value)
-        self.elements[key] = self._wrap_with_button(key, checkbox)
+        self.elements[key] = wrap_with_button(key, checkbox)
         self.info_keys.append(f"{key}_info")
 
     def add_radio_buttons(self, key: str, label: str, choices: list[str], selected: str = None) -> None:
         radio_buttons = ui.input_radio_buttons(id=key, label=label, choices=choices, selected=selected)
-        self.elements[key] = self._wrap_with_button(key, radio_buttons)
+        self.elements[key] = wrap_with_button(key, radio_buttons)
         self.info_keys.append(f"{key}_info")
 
     def add_select_input(self, key: str, label: str, choices: list[str], selected: str = None) -> None:
         select_input = ui.input_select(id=key, label=label, choices=choices, selected=selected)
-        self.elements[key] = self._wrap_with_button(key, select_input)
+        self.elements[key] = wrap_with_button(key, select_input)
         self.info_keys.append(f"{key}_info")
 
     def add_text_area(self, key: str, label: str, value: str, rows: int = 3, cols: int = 40) -> None:
         text_area = ui.input_text_area(id=key, label=label, value=value, rows=rows, cols=cols)
-        self.elements[key] = self._wrap_with_button(key, text_area)
+        self.elements[key] = wrap_with_button(key, text_area)
         self.info_keys.append(f"{key}_info")
 
     def add_date_input(self, key: str, label: str, value: str) -> None:
         date_input = ui.input_date(id=key, label=label, value=value)
-        self.elements[key] = self._wrap_with_button(key, date_input)
+        self.elements[key] = wrap_with_button(key, date_input)
         self.info_keys.append(f"{key}_info")
 
     def add_input_switch(self, key: str, label: str, value: bool = False) -> None:
         input_switch = ui.input_switch(id=key, label=label, value=value)
-        self.elements[key] = self._wrap_with_button(key, input_switch)
+        self.elements[key] = wrap_with_button(key, input_switch)
         self.info_keys.append(f"{key}_info")
 
     def apply(self) -> list[HTMLBody]:
@@ -130,12 +115,6 @@ class SidebarOptions:
 
     def __getitem__(self, item: str):
         return self.elements[item].value
-
-    def add_event_listener(self, key: str, callback: Callable[[Any], None]) -> None:
-        @reactive.effect
-        @reactive.event()
-        def _():
-            print("inner: ")
 
 
 class BasicCardItem:

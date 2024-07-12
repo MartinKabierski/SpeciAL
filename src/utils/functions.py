@@ -101,23 +101,6 @@ def create_info_button(key: str, size: str = "26px") -> HTMLBody:
         style=f"padding: 0 0 0 15px; margin: 0;border: none; background-color: transparent; font-size: {size};")
 
 
-#         .prescript {
-#             position: relative;
-#             top: -0.5em;
-#             font-size: 0.75em;
-#         }
-#         .operator {
-#             display: inline-block;
-#             position: relative;
-#             top: 0;
-#         }
-#     </style>
-# </head>
-# <body>
-#     <p>
-#         Hier ist der Ausdruck direkt in HTML dargestellt:
-#         <span class="prescript">0</span><span class="operator">D</span>
-
 def mathematical_typesetting(prescript: str, operator: str) -> HTMLBody:
     return ui.span(
         ui.span(prescript, style="position: relative; top: -0.5em; font-size: 0.75em"),

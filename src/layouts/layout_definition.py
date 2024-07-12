@@ -263,7 +263,7 @@ def basic_plot_profile_layout(
     return ui.div(grid_layout)
 
 
-def build_species_table(storage: StorageManager, species: str) -> pd.DataFrame:
+def build_species_table(storage: StorageManager, species: str, abundance: bool = True) -> pd.DataFrame:
     """
     Build a DataFrame to display species metrics in the required format.
 
@@ -285,19 +285,30 @@ def build_species_table(storage: StorageManager, species: str) -> pd.DataFrame:
 
     :return: pd.DataFrame
     """
-    # Abundance
-    d0_a = storage.filter_for_metric(species, "abundance_estimate_d0")["abundance_estimate_d0"][-1]
-    d1_a = storage.filter_for_metric(species, "abundance_estimate_d1")["abundance_estimate_d1"][-1]
-    d2_a = storage.filter_for_metric(species, "abundance_estimate_d2")["abundance_estimate_d2"][-1]
-    c0_a = storage.filter_for_metric(species, "abundance_c0")["abundance_c0"][-1]
-    c1_a = storage.filter_for_metric(species, "abundance_c1")["abundance_c1"][-1]
+    if abundance:
+        d0_a = storage.filter_for_metric(species, "abundance_sample_d0")["abundance_sample_d0"][-1]
+        d1_a = storage.filter_for_metric(species, "abundance_sample_d1")["abundance_sample_d1"][-1]
+        d2_a = storage.filter_for_metric(species, "abundance_sample_d2")["abundance_sample_d2"][-1]
+        c0_a = storage.filter_for_metric(species, "abundance_c0")["abundance_c0"][-1]
+        c1_a = storage.filter_for_metric(species, "abundance_c1")["abundance_c1"][-1]
 
-    # Incidence
-    d0_i = storage.filter_for_metric(species, "incidence_estimate_d0")["incidence_estimate_d0"][-1]
-    d1_i = storage.filter_for_metric(species, "incidence_estimate_d1")["incidence_estimate_d1"][-1]
-    d2_i = storage.filter_for_metric(species, "incidence_estimate_d2")["incidence_estimate_d2"][-1]
-    c0_i = storage.filter_for_metric(species, "incidence_c0")["incidence_c0"][-1]
-    c1_i = storage.filter_for_metric(species, "incidence_c1")["incidence_c1"][-1]
+        d0_i = storage.filter_for_metric(species, "abundance_estimate_d0")["abundance_estimate_d0"][-1]
+        d1_i = storage.filter_for_metric(species, "abundance_estimate_d1")["abundance_estimate_d1"][-1]
+        d2_i = storage.filter_for_metric(species, "abundance_estimate_d2")["abundance_estimate_d2"][-1]
+        c0_i = "-"
+        c1_i = "-"
+    else:
+        d0_a = storage.filter_for_metric(species, "incidence_sample_d0")["incidence_sample_d0"][-1]
+        d1_a = storage.filter_for_metric(species, "incidence_sample_d1")["incidence_sample_d1"][-1]
+        d2_a = storage.filter_for_metric(species, "incidence_sample_d2")["incidence_sample_d2"][-1]
+        c0_a = storage.filter_for_metric(species, "incidence_c0")["incidence_c0"][-1]
+        c1_a = storage.filter_for_metric(species, "incidence_c1")["incidence_c1"][-1]
+
+        d0_i = storage.filter_for_metric(species, "incidence_estimate_d0")["incidence_estimate_d0"][-1]
+        d1_i = storage.filter_for_metric(species, "incidence_estimate_d1")["incidence_estimate_d1"][-1]
+        d2_i = storage.filter_for_metric(species, "incidence_estimate_d2")["incidence_estimate_d2"][-1]
+        c0_i = "-"
+        c1_i = "-"
 
     # Constructing the DataFrame
     data = {
@@ -308,8 +319,8 @@ def build_species_table(storage: StorageManager, species: str) -> pd.DataFrame:
             "C0 (Completeness)",
             "C1 (Coverage)"
         ],
-        "Abundance Model": [d0_a, d1_a, d2_a, c0_a, c1_a],
-        "Incidence Model": [d0_i, d1_i, d2_i, c0_i, c1_i]
+        "Sample-based": [d0_a, d1_a, d2_a, c0_a, c1_a],
+        "Asymptotic" if abundance else "Estimated": [d0_i, d1_i, d2_i, c0_i, c1_i]
     }
 
     result = pd.DataFrame(data)

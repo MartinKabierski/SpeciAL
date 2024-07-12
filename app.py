@@ -107,6 +107,7 @@ app_ui: Tag = ui.page_fluid(
     class_="overall-page"
 )
 
+
 def server(input: Inputs, output: Outputs, session: Session) -> None:
     file_uploaded = reactive.Value(False)
     current_retrival_function = reactive.Value[
@@ -133,8 +134,13 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @output
     @render.data_frame
-    def tool1_plot_view_species_table() -> pd.DataFrame:
-        return build_species_table(shared.LOG_PROFILE_CACHE, current_retrival_function.get())
+    def tool1_plot_view_species_abundance_table() -> pd.DataFrame:
+        return build_species_table(shared.LOG_PROFILE_CACHE, current_retrival_function.get(), True)
+
+    @output
+    @render.data_frame
+    def tool1_plot_view_species_incidence_table() -> pd.DataFrame:
+        return build_species_table(shared.LOG_PROFILE_CACHE, current_retrival_function.get(), False)
 
     @output
     @render.ui
@@ -178,7 +184,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     @render.text
     def tool1_degree_of_aggregation() -> str:
 
-        values:  dict[str, list[int | float]] = shared.LOG_PROFILE_CACHE.filter_for_metric(
+        values: dict[str, list[int | float]] = shared.LOG_PROFILE_CACHE.filter_for_metric(
             current_retrival_function.get(),
             "degree_of_aggregation"
         )

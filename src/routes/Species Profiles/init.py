@@ -45,10 +45,12 @@ class Tab1(BaseTab):
             BasicCardItem("Degree of Spatial Aggregation", text_icon("tool1_degree_of_aggregation", "chart-bar")),
         ], ui.div(
             wrapped_div_to_container(ui.output_ui("tool1_plot_view_ranks"), title="Rank", button_key="tool1_rank_info"),
-            wrapped_div_to_container(ui.div(
-                ui.output_data_frame("tool1_plot_view_species_table"),
-                style="display: flex; justify-content: center; align-items: center; padding: 10px;",
-            ), title="Species Table", button_key="tool1_species_table_info"),
+            wrapped_div_to_container(
+                ui.div(
+                    ui.div(ui.h5("Abundance"), ui.output_data_frame("tool1_plot_view_species_abundance_table")),
+                        ui.div(ui.h5("Incidence"), ui.output_data_frame("tool1_plot_view_species_incidence_table")),
+                    style="display: flex; justify-content: space-around; align-items: center; padding: 10px;" )
+                , title="Species Table", button_key="tool1_species_table_info"),
             wrapped_div_to_container(ui.output_ui("tool1_plot_view_profiles"), title="Profiles"),
         ))
 

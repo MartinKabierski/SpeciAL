@@ -34,45 +34,45 @@ class MetricManager(dict):
         self.abundance_sample_size = 0
         self.current_spatial_aggregation = 0
 
-        self["abundance_no_observations"] = []
-        self["incidence_no_observations"] = []
-        self["abundance_sum_species_counts"] = []
-        self["incidence_sum_species_counts"] = []
-        self["degree_of_aggregation"] = []
-        self["abundance_singletons"] = []
-        self["incidence_singletons"] = []
-        self["abundance_doubletons"] = []
-        self["incidence_doubletons"] = []
+        self["abundance_no_observations"] = [0]
+        self["incidence_no_observations"] = [0]
+        self["abundance_sum_species_counts"] = [0]
+        self["incidence_sum_species_counts"] = [0]
+        self["degree_of_aggregation"] = [0]
+        self["abundance_singletons"] = [0]
+        self["incidence_singletons"] = [0]
+        self["abundance_doubletons"] = [0]
+        self["incidence_doubletons"] = [0]
 
         if d0:
-            self["abundance_sample_d0"] = []
-            self["incidence_sample_d0"] = []
-            self["abundance_estimate_d0"] = []
-            self["incidence_estimate_d0"] = []
+            self["abundance_sample_d0"] = [0]
+            self["incidence_sample_d0"] = [0]
+            self["abundance_estimate_d0"] = [0]
+            self["incidence_estimate_d0"] = [0]
 
         if d1:
-            self["abundance_sample_d1"] = []
-            self["incidence_sample_d1"] = []
-            self["abundance_estimate_d1"] = []
-            self["incidence_estimate_d1"] = []
+            self["abundance_sample_d1"] = [0]
+            self["incidence_sample_d1"] = [0]
+            self["abundance_estimate_d1"] = [0]
+            self["incidence_estimate_d1"] = [0]
 
         if d2:
-            self["abundance_sample_d2"] = []
-            self["incidence_sample_d2"] = []
-            self["abundance_estimate_d2"] = []
-            self["incidence_estimate_d2"] = []
+            self["abundance_sample_d2"] = [0]
+            self["incidence_sample_d2"] = [0]
+            self["abundance_estimate_d2"] = [0]
+            self["incidence_estimate_d2"] = [0]
 
         if c0:
-            self["abundance_c0"] = []
-            self["incidence_c0"] = []
+            self["abundance_c0"] = [0]
+            self["incidence_c0"] = [0]
 
         if c1:
-            self["abundance_c1"] = []
-            self["incidence_c1"] = []
+            self["abundance_c1"] = [0]
+            self["incidence_c1"] = [0]
 
         for l in l_n:
-            self["abundance_l_" + str(l)] = []
-            self["incidence_l_" + str(l)] = []
+            self["abundance_l_" + str(l)] = [0]
+            self["incidence_l_" + str(l)] = [0]
 
 
 class SpeciesEstimator:
@@ -126,6 +126,11 @@ class SpeciesEstimator:
         if isinstance(data, pd.DataFrame):
             return self.apply(pm4py.convert_to_event_log(data))
         if isinstance(data, EventLog):
+            if self.step_size is not None:
+                if len(data) <= self.step_size:
+                    self.step_size = 1
+                else:
+                    self.step_size = int(len(data)/self.step_size)
             for species_id in self.species_retrieval.keys():
                 for tr in tqdm(data, "Profiling Log for " + species_id):
                     self.add_observation(tr, species_id)
